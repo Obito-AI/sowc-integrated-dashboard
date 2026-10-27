@@ -634,6 +634,378 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
   transition: all .24s; z-index: 120; box-shadow: 0 6px 20px rgba(0,0,0,.25);
 }
 .toast.on, .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Theme Modes: Cream Tone (Default), Soft Sage, Clean Paper ── */
+:root, [data-theme="cream"] {
+  --bg: #F5F2EB;
+  --paper: #FFFDF9;
+  --paper-soft: #FAF6EE;
+  --paper-mute: #EFECE2;
+  --ink: #22262B;
+  --ink-soft: #525B66;
+  --ink-mute: #7B838E;
+  --line: #E2DDD1;
+  --line-soft: #ECE8DD;
+  --accent: #2E5A44;
+  --accent-hover: #234735;
+  --accent-soft: #EBF2EE;
+  --accent-line: #B5CEC0;
+  --blue: #2C4A6E;
+  --blue-soft: #EBF0F6;
+  --seal: #A63A2E;
+  --seal-soft: #F9ECEA;
+}
+[data-theme="sage"] {
+  --bg: #EFF3F0;
+  --paper: #FAFDFB;
+  --paper-soft: #F2F7F4;
+  --paper-mute: #E4ECE7;
+  --ink: #1D2822;
+  --ink-soft: #4A5D52;
+  --ink-mute: #73877B;
+  --line: #D5E0D9;
+  --line-soft: #E3ECE6;
+  --accent: #265940;
+  --accent-hover: #1C4531;
+  --accent-soft: #E3F0E9;
+  --accent-line: #A9CBB8;
+}
+[data-theme="light"] {
+  --bg: #F6F7F9;
+  --paper: #FFFFFF;
+  --paper-soft: #F9FAFB;
+  --paper-mute: #F0F2F5;
+  --ink: #1E2530;
+  --ink-soft: #4E5869;
+  --ink-mute: #7A8394;
+  --line: #E2E5EC;
+  --line-soft: #ECEEF2;
+}
+
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+}
+.theme-pill-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #D5E2DC !important;
+  padding: 3px 8px !important;
+  font-size: 11.8px !important;
+  border-radius: 5px !important;
+  font-weight: 600 !important;
+}
+.theme-pill-btn.active {
+  background: #FAF6EE !important;
+  color: #22312B !important;
+  font-weight: 750 !important;
+}
+
+/* ── Tab 7: Message & SMS/Email Generator Studio ── */
+.mg-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.mg-mode-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mg-mode-btn {
+  border: 1px solid var(--line);
+  background: var(--paper-soft);
+  color: var(--ink-soft);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.mg-mode-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.mg-mode-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.mg-work-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 1060px) {
+  .mg-work-grid { grid-template-columns: 1fr; }
+}
+
+.stf-doctype-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+@media (max-width: 780px) {
+  .stf-doctype-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.stf-doctype-card {
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  padding: 10px 8px;
+  background: var(--paper-soft);
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+}
+.stf-doctype-card:hover {
+  border-color: var(--accent);
+  background: var(--paper);
+}
+.stf-doctype-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(46,90,68,.1);
+}
+.stf-doctype-card .dt-ico { font-size: 20px; margin-bottom: 3px; }
+.stf-doctype-card .dt-ttl { font-size: 13px; font-weight: 750; }
+.stf-doctype-card .dt-sub { font-size: 11.2px; color: var(--ink-soft); margin-top: 2px; }
+
+.stf-tone-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.stf-tone-btn {
+  border: 1px solid var(--line);
+  background: var(--paper-soft);
+  color: var(--ink-soft);
+  padding: 5px 11px;
+  border-radius: 99px;
+  font-size: 12.3px;
+  font-weight: 650;
+}
+.stf-tone-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.mg-subbox {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 12px 14px;
+  background: var(--paper-soft);
+  margin-bottom: 12px;
+}
+.mg-subbox h4 {
+  font-size: 13.4px;
+  font-weight: 750;
+  color: var(--ink);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mg-item-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.mg-dept-inp {
+  width: 115px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  background: var(--paper);
+  font-weight: 600;
+}
+.mg-title-inp {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 9px;
+  font-size: 13px;
+  background: var(--paper);
+}
+.mg-num-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.mg-check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  font-size: 12.6px;
+  color: var(--ink-soft);
+}
+@media (max-width: 640px) { .mg-check-grid { grid-template-columns: 1fr; } }
+.mg-check-grid label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.mg-preview-panel {
+  border: 1.5px solid var(--accent-line);
+  border-radius: 10px;
+  background: var(--paper-soft);
+  padding: 15px 16px;
+  position: sticky;
+  top: 62px;
+}
+.mg-subj-box {
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-bottom: 10px;
+}
+.mg-subj-lbl {
+  font-size: 11.2px;
+  font-weight: 750;
+  color: var(--accent);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mg-subj-txt {
+  font-size: 13.6px;
+  font-weight: 750;
+  color: var(--ink);
+}
+.mg-preview-ta {
+  width: 100%;
+  min-height: 410px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13.4px;
+  line-height: 1.65;
+  resize: vertical;
+  white-space: pre-wrap;
+}
+.mg-preview-ta:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ── Committee SMS / Email Generator Cards (scool-committee-sms-generator) ── */
+.cm-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.cm-msgtype-card, .cm-meettype-card {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: var(--paper-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all .15s;
+}
+.cm-msgtype-card:hover, .cm-meettype-card:hover {
+  border-color: var(--accent);
+  background: var(--paper);
+}
+.cm-msgtype-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cm-meettype-card.active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.cm-card-ico { font-size: 24px; flex: none; }
+.cm-card-ttl { font-size: 13.8px; font-weight: 750; }
+.cm-card-sub { font-size: 11.6px; color: var(--ink-soft); }
+
+.cm-tpl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.cm-tpl-card {
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 8px;
+  background: var(--paper-soft);
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+}
+.cm-tpl-card:hover {
+  border-color: var(--accent);
+  background: var(--paper);
+}
+.cm-tpl-card.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.cm-tpl-icon { font-size: 19px; margin-bottom: 2px; }
+.cm-tpl-title { font-size: 12.8px; font-weight: 750; }
+.cm-tpl-desc { font-size: 11px; opacity: .82; margin-top: 1px; }
+
+.cm-char-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--paper-mute);
+  color: var(--ink-soft);
+}
+.cm-char-badge.ok { background: var(--accent-soft); color: var(--ok); }
+.cm-char-badge.lms { background: var(--warn-soft); color: var(--warn); }
+.cm-char-badge.warn { background: var(--seal-soft); color: var(--danger); }
+
 </style>
 </head>
 <body>
@@ -647,6 +1019,11 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
   <span class="sub-pill">2026 시교육청 지침 · HWPX 15종 자동화 · 오프라인 동작</span>
   <div class="spacer"></div>
   <div class="global-meta-bar">
+    <div class="theme-switcher" title="화면 테마 전환">
+      <button type="button" class="theme-pill-btn active" data-theme-val="cream" onclick="window.SOWC_APP.setTheme('cream')">🍦 크림톤</button>
+      <button type="button" class="theme-pill-btn" data-theme-val="sage" onclick="window.SOWC_APP.setTheme('sage')">🌿 세이지</button>
+      <button type="button" class="theme-pill-btn" data-theme-val="light" onclick="window.SOWC_APP.setTheme('light')">☀️ 화이트</button>
+    </div>
     <span class="meta-chip" id="gBarSchool">🏫 인천가원초등학교 (제12기)</span>
     <span class="meta-chip" id="gBarSession">📌 2026학년도 제4회(임시회) · D-29</span>
     <button onclick="window.SOWC_APP.syncAllTabs()" title="사전준비·위원현황·회의록 데이터를 즉시 동기화합니다">🔄 전 모듈 데이터 동기화</button>
@@ -675,6 +1052,9 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
   </button>
   <button class="m-tab" data-tab="tab-templates" onclick="window.SOWC_APP.switchTab('tab-templates')">
     📂 6. 관련 서식(업로드) <span class="t-badge" id="bdgTpl">보관함</span>
+  </button>
+  <button class="m-tab" data-tab="tab-msg-gen" onclick="window.SOWC_APP.switchTab('tab-msg-gen')">
+    💬 7. 안내 메시지·문자·메일 <span class="t-badge" id="bdgMsgGen" style="background:var(--seal-soft);color:var(--seal)">교직원·위원</span>
   </button>
 </nav>
 
@@ -771,6 +1151,8 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
         <div class="field w2"><input id="inTitle" placeholder="안건명 또는 추경요구 공문 제목"></div>
         <button class="btn sm primary" onclick="window.SOWC_APP.addIntakeItem()">＋ 추가</button>
         <button class="btn sm" onclick="window.SOWC_APP.sendIntakeToPrep()">📋 선택 안건 → [3. 학운위 준비]로 이관</button>
+        <button class="btn sm seal" onclick="window.SOWC_APP.openStaffNoticeGenerator()">📢 교직원 제출안내 메시지(추경·안건 기한)</button>
+        <button class="btn sm" onclick="window.SOWC_APP.openCommSmsEmailGenerator()">📱📧 위원 안내 문자·메일 생성기</button>
       </div>
     </div>
 
@@ -962,6 +1344,8 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
       <h2>단계별 참석 안내 문자 4종 <span class="tag">EUC-KR 90바이트 SMS/LMS 자동 계산</span></h2>
       <div class="btnrow" style="margin-bottom:12px">
         <button class="btn sm" onclick="window.SOWC_PREP.regenSms()">↺ 기본 문구로 되돌리기</button>
+        <button class="btn sm seal" onclick="window.SOWC_APP.openStaffNoticeGenerator()">👩‍🏫 교직원 학운위 제출안내 메시지(추경·안건 기한) 생성기 열기 →</button>
+        <button class="btn sm primary" onclick="window.SOWC_APP.openCommSmsEmailGenerator()">📱📧 위원 안내 문자·메일 상세 생성기(정기회·임시회/이메일) 열기 →</button>
       </div>
       <div class="smsbox">
         <div class="head"><h3>① 위원 참석 안내 (소집 통지 — 개최 7일 전)</h3><span class="bytes" id="bytes0"></span></div>
@@ -1298,6 +1682,292 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
     <div class="tpl-grid" id="stdTplGrid"></div>
   </div>
 </div>
+
+<!-- ═════════════════════════════════════════════════════════════════
+     TAB 7: 교직원 제출안내 메시지(추경·안건) & 학운위 안내 문자·메일 생성기
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="tab-pane" id="tab-msg-gen">
+  <div class="mg-top-bar">
+    <div class="mg-mode-bar" id="msgGenModeBar">
+      <button type="button" class="mg-mode-btn active" data-mgmode="all" onclick="window.SOWC_APP.setMsgGenViewMode('all')">
+        🔀 통합 보기 (1. 교직원 제출안내 + 2. 위원 문자·메일)
+      </button>
+      <button type="button" class="mg-mode-btn" data-mgmode="staff" onclick="window.SOWC_APP.setMsgGenViewMode('staff')">
+        👩‍🏫 1. 교직원 학운위 제출안내 (추경자료 · 심의안건 기한)
+      </button>
+      <button type="button" class="mg-mode-btn" data-mgmode="comm" onclick="window.SOWC_APP.setMsgGenViewMode('comm')">
+        📱📧 2. 학운위 안내 문자 · 메일 생성기 (위원 소집·안내)
+      </button>
+    </div>
+    <div class="btnrow">
+      <button type="button" class="btn sm primary" onclick="window.SOWC_APP.syncFromDashboardToGenerators(false)">
+        🔄 대시보드 현재 회차·일정·안건 자동 불러오기
+      </button>
+      <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.resetMsgGenerators()">
+        ↺ 기본값 초기화
+      </button>
+    </div>
+  </div>
+
+  <div id="msgGenDualWrap" class="mg-dual-stack">
+    <!-- ─────────────────────────────────────────────────────────────
+         GENERATOR 1: 교직원 학교운영위원회 제출안내 메시지 (추경자료 + 심의안건 자료)
+         ───────────────────────────────────────────────────────────── -->
+    <section class="card" id="secStaffNotice">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <h2>👩‍🏫 1. 교직원 학교운영위원회 제출안내 메시지 생성기 <span class="tag">추가경정예산 자료 · 심의안건 자료 제출 기한 안내</span></h2>
+        <div class="stf-tone-bar" style="margin-bottom:0">
+          <button type="button" class="stf-tone-btn active" data-tone="standard" onclick="window.SOWC_APP.selectStaffTone('standard')">💬 표준 메신저·쪽지형</button>
+          <button type="button" class="stf-tone-btn" data-tone="formal" onclick="window.SOWC_APP.selectStaffTone('formal')">📜 공식 공람·게시판형</button>
+          <button type="button" class="stf-tone-btn" data-tone="compact" onclick="window.SOWC_APP.selectStaffTone('compact')">⚡ 핵심 요약형</button>
+        </div>
+      </div>
+
+      <!-- 안내 유형 4종 선택 -->
+      <div class="stf-doctype-grid">
+        <div class="stf-doctype-card active" data-doctype="both" onclick="window.SOWC_APP.selectStaffDocType('both')">
+          <div class="dt-ico">📋💰</div>
+          <div class="dt-ttl">통합 제출 안내</div>
+          <div class="dt-sub">심의안건 + 추가경정예산</div>
+        </div>
+        <div class="stf-doctype-card" data-doctype="agenda" onclick="window.SOWC_APP.selectStaffDocType('agenda')">
+          <div class="dt-ico">📑</div>
+          <div class="dt-ttl">심의안건 단독 안내</div>
+          <div class="dt-sub">학운위 안건 자료 제출</div>
+        </div>
+        <div class="stf-doctype-card" data-doctype="budget" onclick="window.SOWC_APP.selectStaffDocType('budget')">
+          <div class="dt-ico">💰</div>
+          <div class="dt-ttl">추가경정예산 단독</div>
+          <div class="dt-sub">추경 편성 요구자료 제출</div>
+        </div>
+        <div class="stf-doctype-card" data-doctype="remind" onclick="window.SOWC_APP.selectStaffDocType('remind')">
+          <div class="dt-ico">⏰</div>
+          <div class="dt-ttl">제출 마감 독려</div>
+          <div class="dt-sub">마감 임박 리마인드</div>
+        </div>
+      </div>
+
+      <div class="mg-work-grid">
+        <!-- 좌측: 교직원 안내 입력 폼 -->
+        <div>
+          <div class="mg-subbox">
+            <h4>
+              <span>📅 학교운영위원회 개최 일정 및 기본 정보</span>
+              <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.autoCalcStaffDeadlinesFromMeetDate()">⚡ 개최일 기준 제출기한(D-15) 자동계산</button>
+            </h4>
+            <div class="frow">
+              <div class="field w2"><label>학교명</label><input type="text" id="stf_school" value="인천가원초등학교" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>학년도</label><input type="text" id="stf_year" value="2026" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>학운위 회차</label><input type="text" id="stf_round" value="4" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>회의 구분</label>
+                <select id="stf_kind" onchange="window.SOWC_APP.generateStaffMessage()">
+                  <option value="임시회">임시회</option>
+                  <option value="정기회">정기회</option>
+                </select>
+              </div>
+            </div>
+            <div class="frow" style="margin-bottom:0">
+              <div class="field"><label>학운위 개최 날짜</label><input type="date" id="stf_meetDate" value="2026-11-24" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>개최 시간</label><input type="time" id="stf_meetTime" value="15:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field w2"><label>개최 장소</label><input type="text" id="stf_meetPlace" value="본관 2층 교장실(운영위원회 회의실)" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>소집공고 예정일</label><input type="date" id="stf_noticeDate" value="2026-11-13" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+            </div>
+          </div>
+
+          <!-- 심의안건 제출 기한 -->
+          <div class="mg-subbox" id="stfAgendaDeadlineSection">
+            <h4>
+              <span>📋 학운위 심의(자문) 안건 자료 제출 기한 및 예정 안건</span>
+              <button type="button" class="btn sm" onclick="window.SOWC_APP.addStaffAgenda()">➕ 안건 추가</button>
+            </h4>
+            <div class="frow">
+              <div class="field"><label>안건 제출 마감일</label><input type="date" id="stf_agendaDeadlineDate" value="2026-11-09" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>마감 시간</label><input type="time" id="stf_agendaDeadlineTime" value="16:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field w2"><label>안건 제출 방법 안내</label><input type="text" id="stf_agendaMethod" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+            </div>
+            <div id="stfAgendaListCont"></div>
+          </div>
+
+          <!-- 추가경정예산 제출 기한 -->
+          <div class="mg-subbox" id="stfBudgetDeadlineSection">
+            <h4>
+              <span>💰 추가경정예산(안) 자료 제출 기한 및 대상 사업</span>
+              <button type="button" class="btn sm" onclick="window.SOWC_APP.addStaffBudgetItem()">➕ 추경항목 추가</button>
+            </h4>
+            <div class="frow">
+              <div class="field"><label>추경 회차명</label><input type="text" id="stf_budgetRound" value="제4차 추가경정예산(안)" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>추경 제출 마감일</label><input type="date" id="stf_budgetDeadlineDate" value="2026-11-09" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>마감 시간</label><input type="time" id="stf_budgetDeadlineTime" value="16:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+            </div>
+            <div class="frow">
+              <div class="field full"><label>추경 자료 제출 방법 안내</label><input type="text" id="stf_budgetMethod" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+            </div>
+            <div id="stfBudgetListCont"></div>
+          </div>
+
+          <!-- 옵션 & 문의처 -->
+          <div class="mg-subbox" style="margin-bottom:0">
+            <h4><span>⚙️ 포함 항목 옵션 및 담당자 문의처</span></h4>
+            <div class="mg-check-grid" style="margin-bottom:10px">
+              <label><input type="checkbox" id="stf_optShowAgendas" checked onchange="window.SOWC_APP.generateStaffMessage()"> 예정 심의안건 목록 본문 표시</label>
+              <label><input type="checkbox" id="stf_optShowBudgetItems" checked onchange="window.SOWC_APP.generateStaffMessage()"> 부서별 추경요구 현황 목록 표시</label>
+              <label><input type="checkbox" id="stf_optFieldTripRule" checked onchange="window.SOWC_APP.generateStaffMessage()"> 1일형 체험학습 등 사전심의 누락 주의 안내</label>
+              <label><input type="checkbox" id="stf_optBudgetGuide" checked onchange="window.SOWC_APP.generateStaffMessage()"> 추경 편성 중점사항(목적사업비·불용액) 안내</label>
+              <label><input type="checkbox" id="stf_optAttendProposer" checked onchange="window.SOWC_APP.generateStaffMessage()"> 안건 제안자 본회의 제안설명 참석 안내</label>
+            </div>
+            <div class="frow" style="margin-bottom:0">
+              <div class="field"><label>담당자 / 문의처</label><input type="text" id="stf_contact" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field w2"><label>하단 당부 말씀 (선택)</label><input type="text" id="stf_extraNote" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 교직원 제출안내 메시지 실시간 미리보기 & 복사 -->
+        <div class="mg-preview-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+            <strong style="font-size:14.2px;color:var(--accent)">📢 교직원 안내 메시지 미리보기</strong>
+            <span class="cm-char-badge ok" id="stfCharCount">0자</span>
+          </div>
+          <div class="mg-subj-box">
+            <div class="mg-subj-lbl">
+              <span>📌 쪽지 / 공람 제목</span>
+              <button type="button" class="btn sm ghost" style="padding:2px 7px;font-size:11.5px" onclick="window.SOWC_APP.copyStaffText('subject')">제목 복사</button>
+            </div>
+            <div class="mg-subj-txt" id="stfPreviewSubject"></div>
+          </div>
+          <textarea class="mg-preview-ta" id="stfPreviewBody" spellcheck="false"></textarea>
+          <div class="btnrow" style="margin-top:10px;justify-content:space-between">
+            <div class="btnrow">
+              <button type="button" class="btn primary" onclick="window.SOWC_APP.copyStaffText('all')">📋 제목+본문 전체 복사</button>
+              <button type="button" class="btn" onclick="window.SOWC_APP.copyStaffText('body')">💬 메신저 본문만 복사</button>
+            </div>
+            <div class="btnrow">
+              <button type="button" class="btn sm seal" onclick="window.SOWC_APP.downloadStaffNoticeHwpx()">⬇ 안내문 HWPX</button>
+              <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.generateStaffMessage()">↺ 문구 재생성</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────────
+         GENERATOR 2: 학교운영위원회 안내 문자·메일 생성기 (scool-committee-sms-generator 완벽 통합)
+         ───────────────────────────────────────────────────────────── -->
+    <section class="card" id="secCommSmsEmail">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <h2>📱📧 2. 학교운영위원회 안내 문자 · 메일 생성기 <span class="tag blue">문자(SMS/LMS) · 이메일 / 정기회 · 임시회 스타일별 자동 생성</span></h2>
+        <button type="button" class="btn sm" onclick="window.SOWC_APP.syncFromDashboardToGenerators(false)">🔄 대시보드 회차·안건 불러오기</button>
+      </div>
+
+      <div class="mg-work-grid">
+        <!-- 좌측: 문자/메일 설정 및 안건 입력 -->
+        <div>
+          <!-- 1) 메시지 유형 선택 (문자 / 이메일) -->
+          <div class="mg-subbox">
+            <h4><span>📮 1단계: 메시지 유형 & 🏛️ 회의 유형 선택</span></h4>
+            <div class="cm-type-grid">
+              <div class="cm-msgtype-card active" data-msgtype="sms" onclick="window.SOWC_APP.selectCommMsgType('sms')">
+                <span class="cm-card-ico">📱</span>
+                <div>
+                  <div class="cm-card-ttl">문자 메시지</div>
+                  <div class="cm-card-sub">SMS / LMS 문자 발송용</div>
+                </div>
+              </div>
+              <div class="cm-msgtype-card" data-msgtype="email" onclick="window.SOWC_APP.selectCommMsgType('email')">
+                <span class="cm-card-ico">📧</span>
+                <div>
+                  <div class="cm-card-ttl">이메일</div>
+                  <div class="cm-card-sub">이메일 발송용 (제목 포함)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cm-type-grid" style="margin-bottom:0">
+              <div class="cm-meettype-card" data-meettype="regular" onclick="window.SOWC_APP.selectCommMeetType('regular')">
+                <span class="cm-card-ico">📅</span>
+                <div>
+                  <div class="cm-card-ttl">정기회</div>
+                  <div class="cm-card-sub">정기적으로 개최되는 운영위원회</div>
+                </div>
+              </div>
+              <div class="cm-meettype-card active" data-meettype="special" onclick="window.SOWC_APP.selectCommMeetType('special')">
+                <span class="cm-card-ico">⚡</span>
+                <div>
+                  <div class="cm-card-ttl">임시회</div>
+                  <div class="cm-card-sub">안건 발생 시 수시 소집하는 회의</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2) 메시지 스타일(템플릿) 선택 -->
+          <div class="mg-subbox">
+            <h4><span>💬 2단계: 메시지 스타일 선택</span></h4>
+            <div class="cm-tpl-grid" id="cmTemplateSelector"></div>
+          </div>
+
+          <!-- 3) 회의 기본 정보 입력 -->
+          <div class="mg-subbox">
+            <h4><span>🏫 3단계: 학교명 · 회의 일시 · 장소 입력</span></h4>
+            <div class="frow">
+              <div class="field w2"><label>학교명</label><input type="text" id="cm_schoolName" value="인천가원초등학교" placeholder="예: 인천가원초등학교" oninput="window.SOWC_APP.generateCommMessage()"></div>
+              <div class="field w2"><label>회차 표기 (선택 — 비우면 생략)</label><input type="text" id="cm_roundPrefix" value="2026학년도 제4회" placeholder="예: 2026학년도 제4회" oninput="window.SOWC_APP.generateCommMessage()"></div>
+            </div>
+            <div class="frow">
+              <div class="field"><label>회의 날짜</label><input type="date" id="cm_meetingDate" value="2026-11-24" oninput="window.SOWC_APP.generateCommMessage()"></div>
+              <div class="field"><label>회의 시간</label><input type="time" id="cm_meetingTime" value="15:00" oninput="window.SOWC_APP.generateCommMessage()"></div>
+              <div class="field w2"><label>회의 장소</label><input type="text" id="cm_meetingPlace" value="본관 2층 교장실" placeholder="예: 교장실, 회의실, 시청각실" oninput="window.SOWC_APP.generateCommMessage()"></div>
+            </div>
+            <div class="frow" style="margin-bottom:0">
+              <div class="field w2"><label>문의처 표기</label><input type="text" id="cm_contactPhone" value="행정실 ☎ (담당: 이호철 행정실장)" oninput="window.SOWC_APP.generateCommMessage()"></div>
+              <div class="field"><label>학교장 성명 (이메일용)</label><input type="text" id="cm_principalName" value="권효정" oninput="window.SOWC_APP.generateCommMessage()"></div>
+            </div>
+          </div>
+
+          <!-- 4) 회의 안건 및 추가 안내사항 -->
+          <div class="mg-subbox" style="margin-bottom:0">
+            <h4>
+              <span>📋 4단계: 회의 안건 및 추가 안내사항</span>
+              <button type="button" class="btn sm primary" onclick="window.SOWC_APP.addCommAgenda()">➕ 안건 추가</button>
+            </h4>
+            <div id="cmAgendaContainer" style="margin-bottom:10px"></div>
+            <div class="field full">
+              <label>추가 안내사항 (선택 — 주차, 자료 배부, 참석 회신 등)</label>
+              <textarea id="cm_additionalInfo" style="min-height:60px" placeholder="예: 주차장 이용 가능, 회의자료 당일 배부 등" oninput="window.SOWC_APP.generateCommMessage()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 문자/이메일 실시간 미리보기 & 복사 -->
+        <div class="mg-preview-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+            <strong style="font-size:14.2px;color:var(--accent)" id="cmPreviewTitle">📱 문자 메시지 미리보기</strong>
+            <span class="cm-char-badge ok" id="cmCharCount">0자</span>
+          </div>
+
+          <div class="mg-subj-box" id="cmEmailSubjectWrap" style="display:none">
+            <div class="mg-subj-lbl">
+              <span>📧 이메일 제목</span>
+              <button type="button" class="btn sm ghost" style="padding:2px 7px;font-size:11.5px" onclick="window.SOWC_APP.copyCommMessage('subject')">제목만 복사</button>
+            </div>
+            <div class="mg-subj-txt" id="cmEmailSubject"></div>
+          </div>
+
+          <textarea class="mg-preview-ta" id="cmMessagePreview" spellcheck="false" oninput="window.SOWC_APP.updateCommCharCount()"></textarea>
+
+          <div class="btnrow" style="margin-top:10px;justify-content:space-between">
+            <div class="btnrow">
+              <button type="button" class="btn primary" onclick="window.SOWC_APP.copyCommMessage('all')">📋 복사하기 (원클릭)</button>
+              <button type="button" class="btn" onclick="window.SOWC_APP.copyCommMessage('body')">📄 본문만 복사</button>
+            </div>
+            <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.generateCommMessage()">↺ 템플릿 문구 복원</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
 
 <!-- ═══════════════════ CONSENT MODAL & VOTE MODAL & PREVIEW MODAL ═══════════════════ -->
 <div class="modal-back" id="consentModal">
@@ -4045,6 +4715,10 @@ window.SOWC_PREP = {
     if (tabId === 'tab-templates' && window.SOWC_APP.renderStandardTemplates) {
       window.SOWC_APP.renderStandardTemplates();
     }
+    if (tabId === 'tab-msg-gen' && window.SOWC_APP.generateStaffMessage) {
+      window.SOWC_APP.generateStaffMessage();
+      window.SOWC_APP.generateCommMessage();
+    }
   }
 
   /* ── TAB 1: Calendar & D-Day Calculator ── */
@@ -4192,6 +4866,9 @@ window.SOWC_PREP = {
       window.SOWC_PREP.fillFields();
       window.SOWC_PREP.refresh();
       window.SOWC_PREP.syncToMinutes();
+    }
+    if (window.SOWC_APP.syncFromDashboardToGenerators) {
+      window.SOWC_APP.syncFromDashboardToGenerators(true);
     }
     document.getElementById('gBarSession').textContent = `📌 2026학년도 제${s.round}회(${s.kind}) · ${s.status}`;
     toast(`제${s.round}회(${s.kind}) 정보를 사전준비 및 회의록 모듈로 불러왔습니다.`);
@@ -4900,7 +5577,8 @@ window.SOWC_PREP = {
     }
     validateRosterQuota();
     renderRoster();
-    APP.toast('전 모듈(캘린더·사전준비·회의록·위원현황) 데이터가 최신 상태로 동기화되었습니다!');
+    if (APP.syncFromDashboardToGenerators) APP.syncFromDashboardToGenerators(true);
+    APP.toast('전 모듈(캘린더·사전준비·회의록·위원현황·안내메시지) 데이터가 최신 상태로 동기화되었습니다!');
   }
 
   function exportFullBackup() {
@@ -5070,6 +5748,1361 @@ window.SOWC_PREP = {
     document.addEventListener('DOMContentLoaded', initDashboard);
   } else {
     initDashboard();
+  }
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SOWC_APP Part 3:
+   1) 교직원 학교운영위원회 제출안내 메시지 생성기 (추가경정자료 + 심의안건 자료 기한 안내)
+   2) 학교운영위원회 안내 문자·메일 생성기 (scool-committee-sms-generator 완벽 통합·고도화)
+   3) 크림톤(Cream Tone) & 저자극 테마 스위처
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function(){
+  const APP = window.SOWC_APP;
+  if (!APP) return;
+
+  const MSG_STORAGE_KEY = 'sowc_msg_gen_v2_state';
+
+  /* ── 0. Theme Switcher (Cream Tone Default / Soft Sage / Dark Slate) ── */
+  function setTheme(themeName) {
+    const t = themeName || 'cream';
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('sowc_theme_mode', t); } catch (e) {}
+    document.querySelectorAll('.theme-pill-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.themeVal === t);
+    });
+  }
+
+  function initTheme() {
+    let saved = 'cream';
+    try { saved = localStorage.getItem('sowc_theme_mode') || 'cream'; } catch (e) {}
+    setTheme(saved);
+  }
+
+  /* ── Helper: Date & Time Formatting ── */
+  const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function parseDateParts(dateStr) {
+    if (!dateStr) return null;
+    const m = String(dateStr).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (!m) return null;
+    const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    const dt = new Date(y, mo - 1, d);
+    const w = WEEKDAYS[dt.getDay()];
+    return { y, mo, d, w, dt };
+  }
+
+  function formatKoreanDate(dateStr, includeYear) {
+    const p = parseDateParts(dateStr);
+    if (!p) return '{날짜}';
+    return includeYear ? `${p.y}년 ${p.mo}월 ${p.d}일(${p.w})` : `${p.mo}월 ${p.d}일(${p.w})`;
+  }
+
+  function formatDotDate(dateStr) {
+    const p = parseDateParts(dateStr);
+    if (!p) return '{날짜}';
+    return `${p.y}. ${p.mo}. ${p.d}.(${p.w})`;
+  }
+
+  function formatKoreanTime(timeStr) {
+    if (!timeStr) return '{시간}';
+    const parts = String(timeStr).split(':');
+    if (parts.length < 2) return timeStr;
+    const h = parseInt(parts[0], 10);
+    const m = parts[1];
+    if (isNaN(h)) return timeStr;
+    const ampm = h >= 12 ? '오후' : '오전';
+    const dispH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return `${ampm} ${dispH}:${m}`;
+  }
+
+  function calcEucKrBytes(str) {
+    let b = 0;
+    const s = String(str || '');
+    for (let i = 0; i < s.length; i++) {
+      b += s.charCodeAt(i) > 127 ? 2 : 1;
+    }
+    return b;
+  }
+
+  function shiftIsoDate(isoDate, deltaDays) {
+    const p = parseDateParts(isoDate);
+    if (!p) return '';
+    const target = new Date(p.dt.getTime() + deltaDays * 86400000);
+    const yy = target.getFullYear();
+    const mm = String(target.getMonth() + 1).padStart(2, '0');
+    const dd = String(target.getDate()).padStart(2, '0');
+    return `${yy}-${mm}-${dd}`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SECTION 1: 교직원 학교운영위원회 제출안내 메시지 생성기 (추경자료 + 심의안건 자료)
+     ═══════════════════════════════════════════════════════════════════════════ */
+  const staffState = {
+    docType: 'both',      // 'both' | 'agenda' | 'budget' | 'remind'
+    toneStyle: 'standard',// 'standard' | 'formal' | 'compact'
+    school: '인천가원초등학교',
+    year: '2026',
+    round: '4',
+    kind: '임시회',
+    budgetRound: '제4차 추가경정예산(안)',
+    meetDate: '2026-11-24',
+    meetTime: '15:00',
+    meetPlace: '본관 2층 교장실(운영위원회 회의실)',
+    agendaDeadlineDate: '2026-11-09',
+    agendaDeadlineTime: '16:00',
+    budgetDeadlineDate: '2026-11-09',
+    budgetDeadlineTime: '16:00',
+    noticeDate: '2026-11-13',
+    agendaMethod: '부서별 내부결재 완료 후 K-에듀파인 [학교운영위원회-안건관리-안건제출] 등록 및 심의자료 한글파일(.hwpx) 행정실 제출',
+    budgetMethod: 'K-에듀파인 [학교회계-예산편성-예산요구등록] 입력 후 부서별 추경예산 요구서(산출기초·목적사업비 교부공문 포함) 행정실 제출',
+    contact: '행정실 (학운위·예산 담당 이호철 행정실장)',
+    extraNote: '기한 내 미제출 시 법정 소집공고(개최 7일 전) 일정상 금회 안건 상정 및 추경 반영이 불가하오니 기한을 꼭 지켜주시기 바랍니다.',
+    optShowAgendas: true,
+    optShowBudgetItems: true,
+    optFieldTripRule: true,
+    optBudgetGuide: true,
+    optAttendProposer: true,
+    agendas: [
+      { dept: '늘봄지원실', title: '2026학년도 겨울방학 초등돌봄교실 및 방과후학교 운영 계획(안)' },
+      { dept: '급식실', title: '2027학년도 학교급식 식재료 구매 방법 및 업체 선정 기준(안)' },
+      { dept: '행정실', title: '2026학년도 인천가원초등학교회계 제4차 추가경정예산(안)' }
+    ],
+    budgetItems: [
+      { dept: '교무기획부', title: '기초학력 맞춤형 학습지원 강사료 및 교재비 증액 요청' },
+      { dept: '연구정보부', title: 'AI 디지털교과서 연계 스마트단말기 충전보관함 수선비' },
+      { dept: '체육안전부', title: '겨울철 어린이보호구역 미끄럼방지 포장 및 안전용품 구입' },
+      { dept: '늘봄지원실', title: '겨울방학 돌봄교실 급·간식비 및 프로그램 운영비 편성' }
+    ]
+  };
+
+  function setMsgGenViewMode(mode) {
+    document.querySelectorAll('#msgGenModeBar .mg-mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mgmode === mode);
+    });
+    const sec1 = document.getElementById('secStaffNotice');
+    const sec2 = document.getElementById('secCommSmsEmail');
+    const gridWrap = document.getElementById('msgGenDualWrap');
+    if (!sec1 || !sec2) return;
+    if (mode === 'staff') {
+      sec1.style.display = 'block';
+      sec2.style.display = 'none';
+      if (gridWrap) gridWrap.className = 'mg-single-wrap';
+    } else if (mode === 'comm') {
+      sec1.style.display = 'none';
+      sec2.style.display = 'block';
+      if (gridWrap) gridWrap.className = 'mg-single-wrap';
+    } else {
+      sec1.style.display = 'block';
+      sec2.style.display = 'block';
+      if (gridWrap) gridWrap.className = 'mg-dual-stack';
+    }
+  }
+
+  function openStaffNoticeGenerator() {
+    APP.switchTab('tab-msg-gen');
+    syncFromDashboardToGenerators(true);
+    setMsgGenViewMode('staff');
+    const el = document.getElementById('secStaffNotice');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function openCommSmsEmailGenerator() {
+    APP.switchTab('tab-msg-gen');
+    syncFromDashboardToGenerators(true);
+    setMsgGenViewMode('comm');
+    const el = document.getElementById('secCommSmsEmail');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function selectStaffDocType(type) {
+    staffState.docType = type;
+    document.querySelectorAll('.stf-doctype-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.doctype === type);
+    });
+    const agBox = document.getElementById('stfAgendaDeadlineSection');
+    const bgBox = document.getElementById('stfBudgetDeadlineSection');
+    if (agBox) agBox.style.display = (type === 'budget') ? 'none' : 'block';
+    if (bgBox) bgBox.style.display = (type === 'agenda') ? 'none' : 'block';
+    generateStaffMessage();
+    saveMsgGenState();
+  }
+
+  function selectStaffTone(tone) {
+    staffState.toneStyle = tone;
+    document.querySelectorAll('.stf-tone-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tone === tone);
+    });
+    generateStaffMessage();
+    saveMsgGenState();
+  }
+
+  function autoCalcStaffDeadlinesFromMeetDate() {
+    const meetVal = (document.getElementById('stf_meetDate') || {}).value;
+    if (!meetVal) return;
+    staffState.meetDate = meetVal;
+    staffState.agendaDeadlineDate = shiftIsoDate(meetVal, -15);
+    staffState.budgetDeadlineDate = shiftIsoDate(meetVal, -15);
+    staffState.noticeDate = shiftIsoDate(meetVal, -11);
+    fillStaffFormFields();
+    generateStaffMessage();
+    saveMsgGenState();
+    APP.toast('개최일 기준으로 안건·추경 제출기한(D-15) 및 소집공고 예정일(D-11)을 자동 산출했습니다.');
+  }
+
+  function renderStaffAgendaInputs() {
+    const agCont = document.getElementById('stfAgendaListCont');
+    if (agCont) {
+      agCont.innerHTML = staffState.agendas.map((a, idx) => `
+        <div class="mg-item-row">
+          <input type="text" class="mg-dept-inp" value="${escAttr(a.dept)}" placeholder="부서명" oninput="window.SOWC_APP.updateStaffAgenda(${idx}, 'dept', this.value)">
+          <input type="text" class="mg-title-inp" value="${escAttr(a.title)}" placeholder="심의(자문) 안건명 입력" oninput="window.SOWC_APP.updateStaffAgenda(${idx}, 'title', this.value)">
+          <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.removeStaffAgenda(${idx})" title="삭제">✕</button>
+        </div>
+      `).join('');
+    }
+    const bgCont = document.getElementById('stfBudgetListCont');
+    if (bgCont) {
+      bgCont.innerHTML = staffState.budgetItems.map((b, idx) => `
+        <div class="mg-item-row">
+          <input type="text" class="mg-dept-inp" value="${escAttr(b.dept)}" placeholder="부서명" oninput="window.SOWC_APP.updateStaffBudgetItem(${idx}, 'dept', this.value)">
+          <input type="text" class="mg-title-inp" value="${escAttr(b.title)}" placeholder="추경예산 요구 건명 입력" oninput="window.SOWC_APP.updateStaffBudgetItem(${idx}, 'title', this.value)">
+          <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.removeStaffBudgetItem(${idx})" title="삭제">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  function escAttr(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function updateStaffAgenda(idx, key, val) {
+    if (staffState.agendas[idx]) {
+      staffState.agendas[idx][key] = val;
+      generateStaffMessage();
+      saveMsgGenState();
+    }
+  }
+  function addStaffAgenda() {
+    staffState.agendas.push({ dept: '담당부서', title: '' });
+    renderStaffAgendaInputs();
+    generateStaffMessage();
+    saveMsgGenState();
+  }
+  function removeStaffAgenda(idx) {
+    staffState.agendas.splice(idx, 1);
+    renderStaffAgendaInputs();
+    generateStaffMessage();
+    saveMsgGenState();
+  }
+
+  function updateStaffBudgetItem(idx, key, val) {
+    if (staffState.budgetItems[idx]) {
+      staffState.budgetItems[idx][key] = val;
+      generateStaffMessage();
+      saveMsgGenState();
+    }
+  }
+  function addStaffBudgetItem() {
+    staffState.budgetItems.push({ dept: '담당부서', title: '' });
+    renderStaffAgendaInputs();
+    generateStaffMessage();
+    saveMsgGenState();
+  }
+  function removeStaffBudgetItem(idx) {
+    staffState.budgetItems.splice(idx, 1);
+    renderStaffAgendaInputs();
+    generateStaffMessage();
+    saveMsgGenState();
+  }
+
+  function readStaffFormFields() {
+    const getV = (id, fallback) => {
+      const el = document.getElementById(id);
+      return el ? el.value : fallback;
+    };
+    const getC = (id, fallback) => {
+      const el = document.getElementById(id);
+      return el ? el.checked : fallback;
+    };
+    staffState.school = getV('stf_school', staffState.school);
+    staffState.year = getV('stf_year', staffState.year);
+    staffState.round = getV('stf_round', staffState.round);
+    staffState.kind = getV('stf_kind', staffState.kind);
+    staffState.budgetRound = getV('stf_budgetRound', staffState.budgetRound);
+    staffState.meetDate = getV('stf_meetDate', staffState.meetDate);
+    staffState.meetTime = getV('stf_meetTime', staffState.meetTime);
+    staffState.meetPlace = getV('stf_meetPlace', staffState.meetPlace);
+    staffState.agendaDeadlineDate = getV('stf_agendaDeadlineDate', staffState.agendaDeadlineDate);
+    staffState.agendaDeadlineTime = getV('stf_agendaDeadlineTime', staffState.agendaDeadlineTime);
+    staffState.budgetDeadlineDate = getV('stf_budgetDeadlineDate', staffState.budgetDeadlineDate);
+    staffState.budgetDeadlineTime = getV('stf_budgetDeadlineTime', staffState.budgetDeadlineTime);
+    staffState.noticeDate = getV('stf_noticeDate', staffState.noticeDate);
+    staffState.agendaMethod = getV('stf_agendaMethod', staffState.agendaMethod);
+    staffState.budgetMethod = getV('stf_budgetMethod', staffState.budgetMethod);
+    staffState.contact = getV('stf_contact', staffState.contact);
+    staffState.extraNote = getV('stf_extraNote', staffState.extraNote);
+
+    staffState.optShowAgendas = getC('stf_optShowAgendas', staffState.optShowAgendas);
+    staffState.optShowBudgetItems = getC('stf_optShowBudgetItems', staffState.optShowBudgetItems);
+    staffState.optFieldTripRule = getC('stf_optFieldTripRule', staffState.optFieldTripRule);
+    staffState.optBudgetGuide = getC('stf_optBudgetGuide', staffState.optBudgetGuide);
+    staffState.optAttendProposer = getC('stf_optAttendProposer', staffState.optAttendProposer);
+  }
+
+  function fillStaffFormFields() {
+    const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+    const setC = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+    setV('stf_school', staffState.school);
+    setV('stf_year', staffState.year);
+    setV('stf_round', staffState.round);
+    setV('stf_kind', staffState.kind);
+    setV('stf_budgetRound', staffState.budgetRound);
+    setV('stf_meetDate', staffState.meetDate);
+    setV('stf_meetTime', staffState.meetTime);
+    setV('stf_meetPlace', staffState.meetPlace);
+    setV('stf_agendaDeadlineDate', staffState.agendaDeadlineDate);
+    setV('stf_agendaDeadlineTime', staffState.agendaDeadlineTime);
+    setV('stf_budgetDeadlineDate', staffState.budgetDeadlineDate);
+    setV('stf_budgetDeadlineTime', staffState.budgetDeadlineTime);
+    setV('stf_noticeDate', staffState.noticeDate);
+    setV('stf_agendaMethod', staffState.agendaMethod);
+    setV('stf_budgetMethod', staffState.budgetMethod);
+    setV('stf_contact', staffState.contact);
+    setV('stf_extraNote', staffState.extraNote);
+
+    setC('stf_optShowAgendas', staffState.optShowAgendas);
+    setC('stf_optShowBudgetItems', staffState.optShowBudgetItems);
+    setC('stf_optFieldTripRule', staffState.optFieldTripRule);
+    setC('stf_optBudgetGuide', staffState.optBudgetGuide);
+    setC('stf_optAttendProposer', staffState.optAttendProposer);
+
+    document.querySelectorAll('.stf-doctype-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.doctype === staffState.docType);
+    });
+    document.querySelectorAll('.stf-tone-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tone === staffState.toneStyle);
+    });
+    renderStaffAgendaInputs();
+  }
+
+  function generateStaffMessage() {
+    readStaffFormFields();
+    const s = staffState;
+    const school = s.school || '인천가원초등학교';
+    const meetTitle = `${s.year}학년도 제${s.round}회 ${school}운영위원회(${s.kind})`;
+    const meetDtStr = `${formatKoreanDate(s.meetDate, true)} ${formatKoreanTime(s.meetTime)}`;
+    const meetDotStr = `${formatDotDate(s.meetDate)} ${s.meetTime}`;
+    const agDeadStr = `${formatKoreanDate(s.agendaDeadlineDate, false)} ${s.agendaDeadlineTime}까지`;
+    const bgDeadStr = `${formatKoreanDate(s.budgetDeadlineDate, false)} ${s.budgetDeadlineTime}까지`;
+    const noticeDtStr = formatKoreanDate(s.noticeDate, false);
+
+    const validAgendas = (s.agendas || []).filter(a => (a.title || '').trim() !== '');
+    const validBudgets = (s.budgetItems || []).filter(b => (b.title || '').trim() !== '');
+
+    const agLines = validAgendas.length
+      ? validAgendas.map((a, i) => `   ${i + 1}. ${a.title.trim()}${a.dept ? ` (${a.dept.trim()})` : ''}`).join('\n')
+      : '   • 부서별 제출 예정 심의(자문) 안건';
+
+    const bgLines = validBudgets.length
+      ? validBudgets.map((b, i) => `   - [${b.dept || '담당부서'}] ${b.title.trim()}`).join('\n')
+      : '   - 각 부서별 목적사업비 증·감액 및 불용예상액 정리 건';
+
+    let subject = '';
+    if (s.docType === 'both') {
+      subject = `[안내] ${s.year}학년도 제${s.round}회 학교운영위원회(${s.kind}) 심의안건 및 ${s.budgetRound} 자료 제출 안내`;
+    } else if (s.docType === 'agenda') {
+      subject = `[안내] ${s.year}학년도 제${s.round}회 학교운영위원회(${s.kind}) 심의(자문) 안건 자료 제출 안내`;
+    } else if (s.docType === 'budget') {
+      subject = `[안내] ${s.year}학년도 ${school}회계 ${s.budgetRound} 편성 요구자료 제출 안내 (제${s.round}회 학운위 상정)`;
+    } else {
+      subject = `[마감독려] 제${s.round}회 학교운영위원회(${s.kind}) 심의안건 및 ${s.budgetRound} 자료 제출 마감 안내`;
+    }
+
+    let body = '';
+
+    /* ── Style 1: 표준 업무메신저·쪽지형 (standard) ── */
+    if (s.toneStyle === 'standard') {
+      if (s.docType === 'remind') {
+        body += `📢 [마감 리마인드] 제${s.round}회 학운위 안건 및 ${s.budgetRound} 자료 제출 독려\n\n`;
+        body += `선생님 및 각 부서 담당자님, 안녕하십니까. 행정실입니다.\n`;
+        body += `다가오는 ${meetTitle} 상정을 위한 【심의안건 및 ${s.budgetRound} 요구자료】 제출 마감 기한을 다시 한번 안내해 드립니다.\n\n`;
+      } else {
+        body += `📢 ${subject}\n\n`;
+        body += `교직원 여러분 안녕하십니까. 행정실입니다.\n`;
+        body += `${meetTitle} 개최에 따라 부서별 심의(자문) 안건 및 ${s.budgetRound} 편성 자료 제출 일정을 아래와 같이 안내하오니 기한 내 제출하여 주시기 바랍니다.\n\n`;
+      }
+
+      body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      body += `📅 1. 학교운영위원회 개최 일정\n`;
+      body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      body += `• 회 의 명: ${meetTitle}\n`;
+      body += `• 개최일시: ${meetDtStr}\n`;
+      body += `• 개최장소: ${s.meetPlace}\n`;
+      body += `• 소집공고 및 안건발송 예정일: ${noticeDtStr} (※ 법정 기한: 개최 7일 전 공고)\n`;
+
+      if (s.docType === 'both' || s.docType === 'agenda' || s.docType === 'remind') {
+        body += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        body += `📋 ${s.docType === 'agenda' ? '2. 학운위 심의(자문) 안건 자료 제출 안내' : '2. 학운위 심의(자문) 안건 자료 제출'}\n`;
+        body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        body += `• ⏰ 제출기한: ${agDeadStr} (기한 엄수)\n`;
+        body += `• 📤 제출방법: ${s.agendaMethod}\n`;
+        if (s.optShowAgendas) {
+          body += `• 📌 현재 파악된 예정 안건:\n${agLines}\n`;
+        }
+        if (s.optFieldTripRule || s.optAttendProposer) {
+          body += `• 💡 작성 및 심의 유의사항:\n`;
+          body += `   - 안건 양식에 [제안이유 · 주요내용 · 소요예산 · 세부 추진계획서(붙임)] 필수 기재\n`;
+          if (s.optFieldTripRule) {
+            body += `   - 1일형 현장체험학습(학교 자체계획), 방과후·돌봄 운영, 학운위 규정·학칙 개정 등 법정 심의 대상 사업이 사전심의에서 누락되지 않도록 반드시 확인 요망 (사후 추인 불가)\n`;
+          }
+          if (s.optAttendProposer) {
+            body += `   - 안건 제출 부서장(담당자)께서는 본회의 당일(${formatKoreanDate(s.meetDate, false)} ${s.meetTime}) 제안설명 및 질의응답에 참석해 주시기 바랍니다.\n`;
+          }
+        }
+      }
+
+      if (s.docType === 'both' || s.docType === 'budget' || s.docType === 'remind') {
+        const secNo = (s.docType === 'budget') ? '2' : '3';
+        body += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        body += `💰 ${secNo}. ${s.budgetRound} 편성 요구자료 제출\n`;
+        body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        body += `• ⏰ 제출기한: ${bgDeadStr} (기한 엄수)\n`;
+        body += `• 📤 제출방법: ${s.budgetMethod}\n`;
+        if (s.optBudgetGuide) {
+          body += `• 💡 추경 편성 중점 확인사항:\n`;
+          body += `   - 목적사업비(특별교부금·시교육청 및 지자체 교부금) 교부·변경 내역 전액 일치 여부 확인\n`;
+          body += `   - 완료 사업 집행잔액 및 학년도 말 불용 예상액 전액 감액 조정 (불용률 최소화)\n`;
+          body += `   - 신규·증액 요구 시 구체적인 산출기초(단가×수량×회수) 및 사업 추진 근거 명시\n`;
+        }
+        if (s.optShowBudgetItems && validBudgets.length) {
+          body += `• 📌 부서별 주요 추경 요구 취합 현황:\n${bgLines}\n`;
+        }
+      }
+
+      body += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      if (s.extraNote && s.extraNote.trim()) {
+        body += `※ ${s.extraNote.trim()}\n`;
+      }
+      body += `☎️ 문의처: ${s.contact}\n\n`;
+      body += `늘 학교 교육과정 운영과 학생 교육활동을 위해 애써주셔서 감사합니다.`;
+    }
+    /* ── Style 2: 공식 공람·게시판형 (formal) ── */
+    else if (s.toneStyle === 'formal') {
+      body += `제목: ${subject}\n\n`;
+      body += `1. 평소 학교 교육과정 운영 및 교육발전을 위해 헌신하시는 교직원 여러분께 깊이 감사드립니다.\n\n`;
+      body += `2. 「초·중등교육법」 제32조 및 「${school}운영위원회 규정」에 의거하여 ${meetTitle}를 개최하고자 하오니, 각 부서(학년)에서는 심의(자문) 안건 및 ${s.budgetRound} 편성 요구자료를 기한 내에 제출하여 주시기 바랍니다.\n\n`;
+      body += `  가. 학교운영위원회 개최 개요\n`;
+      body += `    1) 일시: ${meetDotStr}\n`;
+      body += `    2) 장소: ${s.meetPlace}\n`;
+      body += `    3) 소집공고 예정일: ${formatDotDate(s.noticeDate)} (개최 7일 전 법정 공고)\n\n`;
+
+      if (s.docType !== 'budget') {
+        body += `  나. 학교운영위원회 심의(자문) 안건 자료 제출\n`;
+        body += `    1) 제출기한: ${formatDotDate(s.agendaDeadlineDate)} ${s.agendaDeadlineTime}까지\n`;
+        body += `    2) 제출방법: ${s.agendaMethod}\n`;
+        if (s.optShowAgendas) {
+          body += `    3) 상정 예정 안건:\n${agLines}\n`;
+        }
+        if (s.optFieldTripRule) {
+          body += `    4) 행정사항: 학교 자체 계획으로 추진하는 1일형 현장체험학습 등 필수 심의 대상 안건이 누락되지 않도록 각별히 유의하시기 바라며, 안건 제안자는 회의 당일 참석하여 제안설명을 실시함.\n\n`;
+        } else {
+          body += `\n`;
+        }
+      }
+
+      if (s.docType !== 'agenda') {
+        const subChar = s.docType === 'budget' ? '나' : '다';
+        body += `  ${subChar}. ${s.budgetRound} 요구자료 제출\n`;
+        body += `    1) 제출기한: ${formatDotDate(s.budgetDeadlineDate)} ${s.budgetDeadlineTime}까지\n`;
+        body += `    2) 제출방법: ${s.budgetMethod}\n`;
+        if (s.optBudgetGuide) {
+          body += `    3) 중점사항: 목적사업비 교부내역 전액 반영, 사업 집행잔액 및 불용예상액 감액 요구, 산출기초 명확 기재\n`;
+        }
+        if (s.optShowBudgetItems && validBudgets.length) {
+          body += `    4) 부서별 추경 요구 취합 현황:\n${bgLines}\n`;
+        }
+        body += `\n`;
+      }
+
+      if (s.extraNote && s.extraNote.trim()) {
+        body += `3. 협조사항: ${s.extraNote.trim()}\n`;
+      }
+      body += `4. 문의처: ${s.contact}.  끝.`;
+    }
+    /* ── Style 3: 핵심 요약형 (compact) ── */
+    else {
+      body += `📌 [핵심공지] 제${s.round}회 학운위(${s.kind}) 안건 및 추경자료 제출 안내\n\n`;
+      body += `• 학운위 개최일: ${meetDotStr} / ${s.meetPlace}\n`;
+      if (s.docType !== 'budget') {
+        body += `• 📋 심의안건 제출기한: ${agDeadStr}\n`;
+        body += `  ↳ 에듀파인 안건제출 등록 + 한글(.hwpx) 원문 행정실 제출\n`;
+      }
+      if (s.docType !== 'agenda') {
+        body += `• 💰 ${s.budgetRound} 제출기한: ${bgDeadStr}\n`;
+        body += `  ↳ 에듀파인 예산요구등록 + 추경요구서(산출기초·교부공문) 제출\n`;
+      }
+      if (s.optShowAgendas && s.docType !== 'budget') {
+        body += `\n[예정 안건]\n${agLines}\n`;
+      }
+      body += `\n※ 법정 공고일(${noticeDtStr}) 준수를 위해 기한 엄수 부탁드립니다.\n`;
+      body += `☎️ 문의: ${s.contact}`;
+    }
+
+    const subjEl = document.getElementById('stfPreviewSubject');
+    const bodyEl = document.getElementById('stfPreviewBody');
+    const cntEl = document.getElementById('stfCharCount');
+    if (subjEl) subjEl.textContent = subject;
+    if (bodyEl) bodyEl.value = body;
+    if (cntEl) cntEl.textContent = `${body.length}자 · ${calcEucKrBytes(body)}바이트`;
+  }
+
+  function copyStaffText(mode) {
+    const subj = (document.getElementById('stfPreviewSubject') || {}).textContent || '';
+    const body = (document.getElementById('stfPreviewBody') || {}).value || '';
+    let txt = body;
+    if (mode === 'all') txt = `제목: ${subj}\n\n${body}`;
+    else if (mode === 'subject') txt = subj;
+
+    navigator.clipboard.writeText(txt).then(() => {
+      APP.toast(mode === 'subject' ? '교직원 안내문 제목을 복사했습니다!' : mode === 'body' ? '교직원 안내문 본문을 복사했습니다!' : '교직원 안내문(제목+본문)을 클립보드에 복사했습니다!');
+    }).catch(() => {
+      const ta = document.getElementById('stfPreviewBody');
+      if (ta) { ta.select(); document.execCommand('copy'); }
+      APP.toast('클립보드에 복사했습니다!');
+    });
+  }
+
+  async function downloadStaffNoticeHwpx() {
+    if (!window.SOWC_PREP) return;
+    const subj = (document.getElementById('stfPreviewSubject') || {}).textContent || '교직원 학운위 제출안내';
+    const body = (document.getElementById('stfPreviewBody') || {}).value || '';
+    const B = window.SOWC_PREP.BLANK;
+    const P = [
+      { text: `[교직원 공람·안내] ${staffState.school} 행정실`, char: 8, para: 0 }, B,
+      { text: subj, char: 6, para: 1 }, B
+    ];
+    body.split('\n').forEach(line => {
+      if (!line.trim()) P.push(B);
+      else P.push({ text: line, char: 2, para: 0 });
+    });
+    const blob = await window.SOWC_PREP.buildHwpx(subj, P);
+    window.SOWC_PREP.saveBlob(blob, `${staffState.school}_제${staffState.round}회_교직원_안건및추경_제출안내문.hwpx`);
+    APP.toast('교직원 제출안내문(.hwpx)을 내려받았습니다!');
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SECTION 2: 학교운영위원회 안내 문자·메일 생성기 (scool-committee-sms-generator 통합·고도화)
+     ═══════════════════════════════════════════════════════════════════════════ */
+  const commSmsTemplates = {
+    regular: {
+      meeting: {
+        icon: "📅",
+        title: "정중한 안내",
+        description: "격식있는 정기회",
+        template: `🏫 [{schoolName}] {roundPrefix}학교운영위원회 정기회 안내
+
+안녕하세요. 평소 우리 학교 교육 발전을 위해 애써주시는 학교운영위원님께 깊이 감사드립니다.
+
+📅 회의 일정: {date} {time}
+📍 회의 장소: {place}
+📋 주요 안건:
+{agendaList}{additionalInfo}
+
+바쁘신 중에도 꼭 참석하여 주시기 바랍니다. 우리 아이들의 밝은 미래를 위한 소중한 시간이 되겠습니다.
+
+문의: {contactPhone}`
+      },
+      reminder: {
+        icon: "⏰",
+        title: "참석 확인",
+        description: "친근한 확인 요청",
+        template: `⏰ [{schoolName}] {roundPrefix}학교운영위원회 정기회 참석 확인
+
+존경하는 학교운영위원님, 안녕하세요! 😊
+
+다가오는 정기회 참석 여부를 확인하고자 연락드립니다.
+
+📅 회의 일정: {date} {time}
+📍 회의 장소: {place}
+📋 논의 안건:
+{agendaList}{additionalInfo}
+
+참석 가능 여부를 회신해 주시면 회의 준비에 많은 도움이 되겠습니다.
+
+항상 학교 발전에 관심과 애정을 보여주셔서 감사합니다! 🙏
+
+회신: {contactPhone}`
+      },
+      simple: {
+        icon: "📱",
+        title: "간단 버전",
+        description: "SMS용 짧은 안내",
+        template: `[{schoolName}] {roundPrefix}학교운영위원회 정기회
+
+📅 {date} {time}
+📍 {place}
+📋 안건: {agendaSimple}{additionalInfo}
+
+참석 부탁드립니다.
+문의: {contactPhone}`
+      },
+      daybefore: {
+        icon: "🔔",
+        title: "전일 리마인더",
+        description: "회의 하루 전 안내",
+        template: `🔔 [{schoolName}] 내일 학교운영위원회 정기회 개최 안내
+
+위원님 안녕하십니까. 내일({date} {time}) {place}에서 {roundPrefix}학교운영위원회 정기회가 개최됩니다.
+
+📋 안건: {agendaSimple}{additionalInfo}
+
+조심히 오시기 바라며 내일 회의실에서 뵙겠습니다. 감사합니다.
+문의: {contactPhone}`
+      },
+      result: {
+        icon: "✅",
+        title: "회의결과 안내",
+        description: "종료 후 감사·결과",
+        template: `✅ [{schoolName}] {roundPrefix}학교운영위원회 정기회 결과 안내
+
+바쁘신 일정에도 정기회에 참석하여 고견을 주신 위원님께 깊이 감사드립니다.
+
+금일 상정된 안건({agendaSimple})은 원안대로 심의·의결되었으며, 회의 결과와 회의록은 학교 홈페이지에 공개됩니다.
+
+늘 학교 발전을 위해 함께해 주셔서 감사합니다.
+문의: {contactPhone}`
+      }
+    },
+    special: {
+      urgent: {
+        icon: "🚨",
+        title: "긴급 소집",
+        description: "중요성 강조",
+        template: `🚨 [긴급] {schoolName} {roundPrefix}학교운영위원회 임시회 소집
+
+학교운영위원님께 긴급히 연락드립니다.
+
+중요한 현안이 발생하여 임시 학교운영위원회를 개최하게 되었습니다.
+
+📅 긴급 회의: {date} {time}
+📍 회의 장소: {place}
+🔥 긴급 안건:
+{agendaList}{additionalInfo}
+
+다소 갑작스럽지만 학교 운영상 중요한 사안이므로 양해하시고 꼭 참석해 주시기 바랍니다.
+
+교육공동체 발전을 위한 여러분의 지혜가 필요합니다.
+
+긴급 연락: {contactPhone}`
+      },
+      meeting: {
+        icon: "⚡",
+        title: "임시회 안내",
+        description: "정중한 임시회",
+        template: `⚡ [{schoolName}] {roundPrefix}학교운영위원회 임시회 안내
+
+안녕하세요. 학교운영위원님께 연락드립니다.
+
+특별한 안건을 논의하기 위해 임시회를 개최하고자 합니다.
+
+📅 회의 일정: {date} {time}
+📍 회의 장소: {place}
+📋 임시회 안건:
+{agendaList}{additionalInfo}
+
+갑작스런 일정에도 불구하고 참석해 주시면 감사하겠습니다.
+
+학교 운영에 꼭 필요한 사안이오니 협조 부탁드립니다.
+
+문의: {contactPhone}`
+      },
+      simple: {
+        icon: "📱",
+        title: "간단 버전",
+        description: "SMS용 짧은 안내",
+        template: `[긴급] {schoolName} {roundPrefix}학교운영위원회 임시회
+
+📅 {date} {time}
+📍 {place}
+🔥 긴급안건: {agendaSimple}{additionalInfo}
+
+꼭 참석 부탁드립니다.
+문의: {contactPhone}`
+      },
+      daybefore: {
+        icon: "🔔",
+        title: "전일 리마인더",
+        description: "임시회 하루 전",
+        template: `🔔 [{schoolName}] 내일 학교운영위원회 임시회 개최 안내
+
+위원님 안녕하십니까. 내일({date} {time}) {place}에서 {roundPrefix}학교운영위원회 임시회가 개최됩니다.
+
+📋 안건: {agendaSimple}{additionalInfo}
+
+바쁘시더라도 꼭 참석 부탁드립니다. 감사합니다.
+문의: {contactPhone}`
+      },
+      result: {
+        icon: "✅",
+        title: "회의결과 안내",
+        description: "임시회 결과 보고",
+        template: `✅ [{schoolName}] {roundPrefix}학교운영위원회 임시회 결과 안내
+
+바쁘신 가운데 임시회에 참석해 주신 위원님께 깊이 감사드립니다.
+
+상정 안건({agendaSimple})이 심의·의결되었으며, 회의 결과는 학교 홈페이지에서 확인하실 수 있습니다. 감사합니다.
+문의: {contactPhone}`
+      }
+    }
+  };
+
+  const commEmailTemplates = {
+    regular: {
+      formal: {
+        icon: "📜",
+        title: "공식 안내",
+        description: "격식있는 공문",
+        subject: "[{schoolName}] {roundPrefix}학교운영위원회 정기회 개최 안내",
+        template: `학교운영위원님께
+
+평소 우리 학교 교육 발전을 위해 애써주시는 데 대하여 깊이 감사드립니다.
+
+아래와 같이 {roundPrefix}학교운영위원회 정기회를 개최하오니 참석하여 주시기 바랍니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+■ 회의 일시: {date} {time}
+■ 회의 장소: {place}
+■ 회의 안건:
+{agendaList}
+■ 문의 사항: {contactPhone}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【추가 안내사항】{additionalInfo}
+
+참석이 어려우실 경우 회의 개최 3일 전까지 행정실로 연락 주시기 바랍니다.
+
+위원님들의 적극적인 참여와 건설적인 의견 개진을 부탁드립니다.
+
+우리 학교 교육공동체 발전을 위한 귀중한 시간이 되기를 바랍니다.
+
+감사합니다.
+
+{schoolName} 교장 {principalName} 드림
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{schoolName}
+문의: {contactPhone}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+      },
+      detailed: {
+        icon: "📋",
+        title: "상세 안내",
+        description: "자세한 설명",
+        subject: "[{schoolName}] {date} {roundPrefix}학교운영위원회 정기회 안내",
+        template: `학교운영위원님 안녕하세요.
+
+{schoolName} {roundPrefix}학교운영위원회 정기회를 다음과 같이 개최하고자 하오니, 바쁘신 가운데에도 참석하여 주시기 바랍니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 회의 개요
+
+- 일시: {date} {time}
+- 장소: {place}
+- 소요 시간: 약 1~2시간 예정
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 회의 안건
+
+{agendaList}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 참석 관련 안내
+{additionalInfo}
+
+- 심의자료는 사전 배부(또는 첨부파일 참조) 및 당일 회의석상에 준비됩니다.
+- 주차 공간이 혼잡할 수 있으니 참고 부탁드립니다.
+- 부득이한 사유로 참석이 어려우신 경우, 사전에 행정실로 연락 주시기 바랍니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+학교운영위원님의 적극적인 참여와 건설적인 의견이 우리 학교 발전의 밑거름이 됩니다.
+
+항상 학교 교육을 위해 애써주셔서 진심으로 감사드립니다.
+
+문의사항이 있으시면 언제든지 행정실로 연락 주시기 바랍니다.
+
+감사합니다.
+
+{schoolName}
+{contactPhone}`
+      },
+      simple: {
+        icon: "✉️",
+        title: "간결한 안내",
+        description: "핵심만 전달",
+        subject: "[{schoolName}] {roundPrefix}학교운영위원회 정기회 ({date})",
+        template: `학교운영위원님께
+
+{roundPrefix}학교운영위원회 정기회를 아래와 같이 개최하오니 참석 부탁드립니다.
+
+━━━━━━━━━━━━━━━━━━━━
+📅 일시: {date} {time}
+📍 장소: {place}
+📋 안건:
+{agendaList}
+━━━━━━━━━━━━━━━━━━━━
+{additionalInfo}
+
+참석이 어려우실 경우 행정실로 연락 주시기 바랍니다.
+
+감사합니다.
+
+{schoolName} 행정실 ({contactPhone})`
+      },
+      materials: {
+        icon: "📎",
+        title: "심의자료 송부",
+        description: "안건 자료 첨부 발송",
+        subject: "[{schoolName}] {roundPrefix}학교운영위원회 정기회 안건 심의자료 송부",
+        template: `학교운영위원님 안녕하십니까, {schoolName} 운영위원회 간사입니다.
+
+다가오는 {date} {time}에 개최되는 {roundPrefix}학교운영위원회 정기회 안건 심의자료를 붙임과 같이 송부해 드립니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+■ 회의 일시: {date} {time}
+■ 회의 장소: {place}
+■ 상정 안건 및 첨부 심의자료:
+{agendaList}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{additionalInfo}
+
+회의 전 안건 자료를 사전 검토해 주시면 원활하고 내실 있는 심의에 큰 도움이 되겠습니다.
+자료 열람 중 궁금하신 사항은 언제든 행정실로 문의해 주시기 바랍니다.
+
+감사합니다.
+
+{schoolName} 행정실 ({contactPhone})`
+      }
+    },
+    special: {
+      urgent: {
+        icon: "🚨",
+        title: "긴급 소집",
+        description: "긴급 임시회",
+        subject: "[긴급] {schoolName} {roundPrefix}학교운영위원회 임시회 소집",
+        template: `학교운영위원님께
+
+긴급한 현안이 발생하여 {roundPrefix}학교운영위원회 임시회를 소집하게 되었습니다.
+
+다소 갑작스러운 일정이지만, 학교 운영상 중요한 사안이므로 꼭 참석하여 주시기 바랍니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚨 긴급 회의 안내
+
+- 일시: {date} {time}
+- 장소: {place}
+- 회의 유형: {roundPrefix}임시회
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔥 긴급 안건
+
+{agendaList}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ 특별 안내
+{additionalInfo}
+
+- 부득이한 사유로 참석이 불가능하신 경우, 즉시 행정실로 연락 주시기 바랍니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+급박한 상황에서 소집된 회의이지만, 학교 교육공동체의 중요한 의사결정을 위해 위원님들의 지혜가 필요합니다.
+
+바쁘신 가운데에도 적극적인 참여를 부탁드립니다.
+
+감사합니다.
+
+{schoolName} 교장 {principalName} 드림
+긴급 연락처: {contactPhone}`
+      },
+      formal: {
+        icon: "📜",
+        title: "공식 소집",
+        description: "격식있는 공문",
+        subject: "[{schoolName}] {roundPrefix}학교운영위원회 임시회 소집 공고",
+        template: `학교운영위원님께
+
+긴급한 현안 처리를 위하여 아래와 같이 {roundPrefix}학교운영위원회 임시회를 소집하오니 참석하여 주시기 바랍니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+■ 회의 일시: {date} {time}
+■ 회의 장소: {place}
+■ 회의 성격: {roundPrefix}임시회
+■ 회의 안건:
+{agendaList}
+■ 문의 사항: {contactPhone}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【특별 안내사항】{additionalInfo}
+
+학교 운영상 중요한 사안이므로 바쁘시더라도 양해하시고 참석하여 주시기 바랍니다.
+
+참석이 불가능하신 경우 행정실로 연락 주시기 바랍니다.
+
+교육공동체 발전을 위한 위원님들의 협조를 부탁드립니다.
+
+{schoolName} 교장 {principalName} 드림
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{schoolName}
+문의: {contactPhone}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+      },
+      simple: {
+        icon: "⚡",
+        title: "간결한 소집",
+        description: "핵심만 전달",
+        subject: "[긴급] {schoolName} {roundPrefix}임시회 ({date})",
+        template: `학교운영위원님께
+
+현안 안건 심의를 위해 {roundPrefix}학교운영위원회 임시회를 소집합니다.
+
+━━━━━━━━━━━━━━━━━━━━
+⚡ 일시: {date} {time}
+📍 장소: {place}
+🔥 심의안건:
+{agendaList}
+━━━━━━━━━━━━━━━━━━━━
+{additionalInfo}
+
+학교 운영상 중요한 사안이므로 꼭 참석 부탁드립니다.
+
+{schoolName} 행정실
+연락처: {contactPhone}`
+      },
+      materials: {
+        icon: "📎",
+        title: "심의자료 송부",
+        description: "임시회 자료 첨부",
+        subject: "[{schoolName}] {roundPrefix}학교운영위원회 임시회 심의자료 송부",
+        template: `학교운영위원님 안녕하십니까, {schoolName} 운영위원회 간사입니다.
+
+{date} {time}에 개최되는 {roundPrefix}학교운영위원회 임시회 안건 심의자료를 붙임과 같이 송부해 드립니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+■ 회의 일시: {date} {time}
+■ 회의 장소: {place}
+■ 심의 안건:
+{agendaList}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{additionalInfo}
+
+사전 검토 후 궁금하신 사항은 행정실로 연락 주시기 바랍니다. 회의 당일 뵙겠습니다.
+
+감사합니다.
+
+{schoolName} 행정실 ({contactPhone})`
+      }
+    }
+  };
+
+  const commState = {
+    msgType: 'sms',       // 'sms' | 'email'
+    meetType: 'special',  // 'regular' | 'special'
+    templateKey: 'meeting',
+    schoolName: '인천가원초등학교',
+    roundPrefix: '2026학년도 제4회 ',
+    meetingDate: '2026-11-24',
+    meetingTime: '15:00',
+    meetingPlace: '본관 2층 교장실',
+    contactPhone: '행정실 ☎ (담당: 이호철 행정실장)',
+    principalName: '권효정',
+    additionalInfo: '주차장 이용 가능하며, 심의자료는 사전 배부 및 당일 회의석상에 준비됩니다.',
+    agendas: [
+      '2026학년도 겨울방학 초등돌봄교실 및 방과후학교 운영 계획(안)',
+      '2027학년도 학교급식 식재료 구매 방법 및 업체 선정 기준(안)',
+      '2026학년도 인천가원초등학교회계 제4차 추가경정예산(안)'
+    ]
+  };
+
+  function selectCommMsgType(msgType) {
+    commState.msgType = msgType;
+    document.querySelectorAll('.cm-msgtype-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.msgtype === msgType);
+    });
+    const pvTitle = document.getElementById('cmPreviewTitle');
+    if (pvTitle) pvTitle.textContent = msgType === 'sms' ? '📱 문자 메시지 미리보기' : '📧 이메일 미리보기 (제목 + 본문)';
+    renderCommTemplateSelector();
+    generateCommMessage();
+    saveMsgGenState();
+  }
+
+  function selectCommMeetType(meetType) {
+    commState.meetType = meetType;
+    document.querySelectorAll('.cm-meettype-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.meettype === meetType);
+    });
+    renderCommTemplateSelector();
+    generateCommMessage();
+    saveMsgGenState();
+  }
+
+  function renderCommTemplateSelector() {
+    const cont = document.getElementById('cmTemplateSelector');
+    if (!cont) return;
+    const dict = commState.msgType === 'sms' ? commSmsTemplates : commEmailTemplates;
+    const group = dict[commState.meetType] || {};
+    const keys = Object.keys(group);
+    if (!keys.includes(commState.templateKey)) {
+      commState.templateKey = keys[0] || 'meeting';
+    }
+    cont.innerHTML = keys.map(k => {
+      const t = group[k];
+      const isAct = k === commState.templateKey;
+      return `
+        <div class="cm-tpl-card ${isAct ? 'active' : ''}" onclick="window.SOWC_APP.selectCommTemplate('${k}')">
+          <div class="cm-tpl-icon">${t.icon}</div>
+          <div class="cm-tpl-title">${t.title}</div>
+          <div class="cm-tpl-desc">${t.description}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function selectCommTemplate(key) {
+    commState.templateKey = key;
+    renderCommTemplateSelector();
+    generateCommMessage();
+    saveMsgGenState();
+  }
+
+  function renderCommAgendas() {
+    const cont = document.getElementById('cmAgendaContainer');
+    if (!cont) return;
+    cont.innerHTML = commState.agendas.map((item, idx) => `
+      <div class="mg-item-row">
+        <span class="mg-num-badge">${idx + 1}</span>
+        <input type="text" class="mg-title-inp" value="${escAttr(item)}" placeholder="예: 2026년도 예산 검토 및 승인" oninput="window.SOWC_APP.updateCommAgenda(${idx}, this.value)">
+        ${commState.agendas.length > 1 ? `<button type="button" class="btn sm ghost" onclick="window.SOWC_APP.removeCommAgenda(${idx})" title="안건 삭제">❌</button>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function updateCommAgenda(idx, val) {
+    commState.agendas[idx] = val;
+    generateCommMessage();
+    saveMsgGenState();
+  }
+
+  function addCommAgenda() {
+    commState.agendas.push('');
+    renderCommAgendas();
+    generateCommMessage();
+    saveMsgGenState();
+  }
+
+  function removeCommAgenda(idx) {
+    if (commState.agendas.length <= 1) return;
+    commState.agendas.splice(idx, 1);
+    renderCommAgendas();
+    generateCommMessage();
+    saveMsgGenState();
+  }
+
+  function readCommFormFields() {
+    const getV = (id, fb) => { const el = document.getElementById(id); return el ? el.value : fb; };
+    commState.schoolName = getV('cm_schoolName', commState.schoolName);
+    commState.roundPrefix = getV('cm_roundPrefix', commState.roundPrefix);
+    commState.meetingDate = getV('cm_meetingDate', commState.meetingDate);
+    commState.meetingTime = getV('cm_meetingTime', commState.meetingTime);
+    commState.meetingPlace = getV('cm_meetingPlace', commState.meetingPlace);
+    commState.contactPhone = getV('cm_contactPhone', commState.contactPhone);
+    commState.principalName = getV('cm_principalName', commState.principalName);
+    commState.additionalInfo = getV('cm_additionalInfo', commState.additionalInfo);
+  }
+
+  function fillCommFormFields() {
+    const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+    setV('cm_schoolName', commState.schoolName);
+    setV('cm_roundPrefix', commState.roundPrefix);
+    setV('cm_meetingDate', commState.meetingDate);
+    setV('cm_meetingTime', commState.meetingTime);
+    setV('cm_meetingPlace', commState.meetingPlace);
+    setV('cm_contactPhone', commState.contactPhone);
+    setV('cm_principalName', commState.principalName);
+    setV('cm_additionalInfo', commState.additionalInfo);
+
+    document.querySelectorAll('.cm-msgtype-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.msgtype === commState.msgType);
+    });
+    document.querySelectorAll('.cm-meettype-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.meettype === commState.meetType);
+    });
+    renderCommTemplateSelector();
+    renderCommAgendas();
+  }
+
+  function generateCommMessage() {
+    readCommFormFields();
+    const schoolName = (commState.schoolName || '').trim() || '{학교명}';
+    const rPrefRaw = (commState.roundPrefix || '').trim();
+    const roundPrefix = rPrefRaw ? (rPrefRaw + ' ') : '';
+    const formattedDate = formatKoreanDate(commState.meetingDate, false);
+    const formattedTime = formatKoreanTime(commState.meetingTime);
+    const meetingPlace = (commState.meetingPlace || '').trim() || '{장소}';
+    const contactPhone = (commState.contactPhone || '').trim() || '행정실 ☎';
+    const principalName = (commState.principalName || '').trim() || '○○○';
+    const additionalInfo = (commState.additionalInfo || '').trim();
+
+    const cleanAgendas = (commState.agendas || []).map(x => x.trim()).filter(Boolean);
+    let agendaList = '';
+    if (cleanAgendas.length > 0) {
+      agendaList = cleanAgendas.map((item, idx) => `   ${idx + 1}. ${item}`).join('\n');
+    } else {
+      agendaList = commState.meetType === 'regular'
+        ? '   • 학교 운영 전반에 관한 사항'
+        : '   • 긴급 현안 처리';
+    }
+
+    let agendaSimple = '';
+    if (cleanAgendas.length > 0) {
+      agendaSimple = cleanAgendas.length === 1
+        ? cleanAgendas[0]
+        : `${cleanAgendas[0]} 등 ${cleanAgendas.length}건`;
+    } else {
+      agendaSimple = commState.meetType === 'regular' ? '학교 운영 전반' : '긴급 현안';
+    }
+
+    const additionalText = commState.msgType === 'email'
+      ? (additionalInfo ? `\n${additionalInfo}` : '\n(별도 안내사항 없음)')
+      : (additionalInfo ? `\n※ ${additionalInfo}` : '');
+
+    const dict = commState.msgType === 'sms' ? commSmsTemplates : commEmailTemplates;
+    const group = dict[commState.meetType] || dict.regular;
+    const tplObj = group[commState.templateKey] || Object.values(group)[0];
+
+    let message = tplObj.template
+      .replace(/{schoolName}/g, schoolName)
+      .replace(/{roundPrefix}/g, roundPrefix)
+      .replace(/{date}/g, formattedDate)
+      .replace(/{time}/g, formattedTime)
+      .replace(/{place}/g, meetingPlace)
+      .replace(/{agendaList}/g, agendaList)
+      .replace(/{agendaSimple}/g, agendaSimple)
+      .replace(/{contactPhone}/g, contactPhone)
+      .replace(/{principalName}/g, principalName)
+      .replace(/{additionalInfo}/g, additionalText);
+
+    const subjWrap = document.getElementById('cmEmailSubjectWrap');
+    const subjEl = document.getElementById('cmEmailSubject');
+    if (commState.msgType === 'email' && tplObj.subject) {
+      const subject = tplObj.subject
+        .replace(/{schoolName}/g, schoolName)
+        .replace(/{roundPrefix}/g, roundPrefix)
+        .replace(/{roundText}/g, rPrefRaw || '')
+        .replace(/{date}/g, formattedDate);
+      if (subjWrap) subjWrap.style.display = 'block';
+      if (subjEl) subjEl.textContent = subject;
+    } else {
+      if (subjWrap) subjWrap.style.display = 'none';
+    }
+
+    const pvEl = document.getElementById('cmMessagePreview');
+    if (pvEl) pvEl.value = message;
+
+    updateCommCharCount();
+  }
+
+  function updateCommCharCount() {
+    const pvEl = document.getElementById('cmMessagePreview');
+    const cntEl = document.getElementById('cmCharCount');
+    if (!pvEl || !cntEl) return;
+    const msg = pvEl.value || '';
+    const charCount = msg.length;
+    const byteCount = calcEucKrBytes(msg);
+
+    if (commState.msgType === 'email') {
+      cntEl.textContent = `${charCount}자 · ${byteCount}바이트 (이메일 발송용)`;
+      cntEl.className = 'cm-char-badge ok';
+    } else {
+      if (charCount <= 90 && byteCount <= 90) {
+        cntEl.textContent = `${charCount}자 · ${byteCount}바이트 (SMS 단문 전송 가능)`;
+        cntEl.className = 'cm-char-badge ok';
+      } else if (charCount <= 2000) {
+        cntEl.textContent = `${charCount}자 · ${byteCount}바이트 (LMS 장문 권장)`;
+        cntEl.className = 'cm-char-badge lms';
+      } else {
+        cntEl.textContent = `${charCount}자 · ${byteCount}바이트 (2,000자 초과 — 내용을 줄여주세요!)`;
+        cntEl.className = 'cm-char-badge warn';
+      }
+    }
+  }
+
+  function copyCommMessage(mode) {
+    const subj = (document.getElementById('cmEmailSubject') || {}).textContent || '';
+    const body = (document.getElementById('cmMessagePreview') || {}).value || '';
+    let txt = body;
+    if (commState.msgType === 'email') {
+      if (mode === 'subject') txt = subj;
+      else if (mode === 'body') txt = body;
+      else txt = `제목: ${subj}\n\n${body}`;
+    }
+    navigator.clipboard.writeText(txt).then(() => {
+      APP.toast(
+        commState.msgType === 'email'
+          ? (mode === 'subject' ? '이메일 제목을 복사했습니다!' : mode === 'body' ? '이메일 본문을 복사했습니다!' : '이메일 제목+본문을 복사했습니다!')
+          : '안내 문자 메시지를 클립보드에 복사했습니다!'
+      );
+    }).catch(() => {
+      const ta = document.getElementById('cmMessagePreview');
+      if (ta) { ta.select(); document.execCommand('copy'); }
+      APP.toast('클립보드에 복사했습니다!');
+    });
+  }
+
+  /* ── Sync Dashboard Data (Tab 1 & Tab 3) -> Both Generators ── */
+  function syncFromDashboardToGenerators(silent) {
+    const prep = window.SOWC_PREP ? window.SOWC_PREP.state : null;
+    if (prep) {
+      staffState.school = prep.school || '인천가원초등학교';
+      staffState.year = prep.year || '2026';
+      staffState.round = prep.round || '4';
+      staffState.kind = prep.kind || '임시회';
+      staffState.budgetRound = `제${prep.round || '4'}차 추가경정예산(안)`;
+      staffState.meetPlace = prep.place || '본관 2층 교장실';
+
+      commState.schoolName = prep.school || '인천가원초등학교';
+      commState.roundPrefix = `${prep.year || '2026'}학년도 제${prep.round || '4'}회`;
+      commState.meetType = (prep.kind === '정기회') ? 'regular' : 'special';
+      commState.meetingPlace = prep.place || '본관 2층 교장실';
+
+      // Parse date & time from prep.dt (e.g., "2026. 11. 24.(화) 15:00")
+      const mDt = String(prep.dt || '').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:[^0-9]*(\d{1,2}:\d{2}))?/);
+      if (mDt) {
+        const iso = `${mDt[1]}-${String(mDt[2]).padStart(2, '0')}-${String(mDt[3]).padStart(2, '0')}`;
+        staffState.meetDate = iso;
+        commState.meetingDate = iso;
+        if (mDt[4]) {
+          staffState.meetTime = mDt[4].padStart(5, '0');
+          commState.meetingTime = mDt[4].padStart(5, '0');
+        }
+        staffState.agendaDeadlineDate = shiftIsoDate(iso, -15);
+        staffState.budgetDeadlineDate = shiftIsoDate(iso, -15);
+      }
+
+      const nDt = String(prep.noticeDate || '').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+      if (nDt) {
+        staffState.noticeDate = `${nDt[1]}-${String(nDt[2]).padStart(2, '0')}-${String(nDt[3]).padStart(2, '0')}`;
+      }
+
+      if (Array.isArray(prep.agendas) && prep.agendas.length) {
+        commState.agendas = prep.agendas.map(a => a.title || '').filter(Boolean);
+      }
+    }
+
+    // Sync from Tab 1 Intakes if available
+    const intakes = (APP.appState && APP.appState.intakes) || [];
+    const agIntakes = intakes.filter(x => x.kind === '심의안건');
+    const bgIntakes = intakes.filter(x => x.kind === '추경요청');
+    if (agIntakes.length) {
+      staffState.agendas = agIntakes.map(x => ({ dept: x.dept || '담당부서', title: x.title || '' }));
+    } else if (prep && Array.isArray(prep.agendas) && prep.agendas.length) {
+      staffState.agendas = prep.agendas.map(a => ({ dept: a.proposer || '담당부서', title: a.title || '' }));
+    }
+    if (bgIntakes.length) {
+      staffState.budgetItems = bgIntakes.map(x => ({
+        dept: x.dept || '담당부서',
+        title: String(x.title || '').replace(/^\[추경요청\s*\d+\]\s*/, '')
+      }));
+    }
+
+    fillStaffFormFields();
+    fillCommFormFields();
+    generateStaffMessage();
+    generateCommMessage();
+    saveMsgGenState();
+    if (!silent) {
+      APP.toast(`대시보드 제${staffState.round}회(${staffState.kind}) 일정·장소·안건(${commState.agendas.length}건)·추경(${staffState.budgetItems.length}건)을 자동 연동했습니다!`);
+    }
+  }
+
+  function saveMsgGenState() {
+    try {
+      localStorage.setItem(MSG_STORAGE_KEY, JSON.stringify({
+        staffState,
+        commState
+      }));
+    } catch (e) {}
+  }
+
+  function loadMsgGenState() {
+    try {
+      const raw = localStorage.getItem(MSG_STORAGE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.staffState) Object.assign(staffState, d.staffState);
+      if (d.commState) Object.assign(commState, d.commState);
+    } catch (e) {}
+  }
+
+  function resetMsgGenerators() {
+    localStorage.removeItem(MSG_STORAGE_KEY);
+    syncFromDashboardToGenerators(true);
+    APP.toast('안내 메시지·문자·메일 생성기를 현재 대시보드 회차 기본값으로 초기화했습니다.');
+  }
+
+  /* ── Attach to window.SOWC_APP ── */
+  Object.assign(APP, {
+    setTheme,
+    setMsgGenViewMode,
+    openStaffNoticeGenerator,
+    openCommSmsEmailGenerator,
+    selectStaffDocType,
+    selectStaffTone,
+    autoCalcStaffDeadlinesFromMeetDate,
+    updateStaffAgenda,
+    addStaffAgenda,
+    removeStaffAgenda,
+    updateStaffBudgetItem,
+    addStaffBudgetItem,
+    removeStaffBudgetItem,
+    generateStaffMessage,
+    copyStaffText,
+    downloadStaffNoticeHwpx,
+    selectCommMsgType,
+    selectCommMeetType,
+    selectCommTemplate,
+    updateCommAgenda,
+    addCommAgenda,
+    removeCommAgenda,
+    generateCommMessage,
+    updateCommCharCount,
+    copyCommMessage,
+    syncFromDashboardToGenerators,
+    resetMsgGenerators
+  });
+
+  function initPart3() {
+    initTheme();
+    loadMsgGenState();
+    fillStaffFormFields();
+    fillCommFormFields();
+    generateStaffMessage();
+    generateCommMessage();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPart3);
+  } else {
+    initPart3();
   }
 })();
 
