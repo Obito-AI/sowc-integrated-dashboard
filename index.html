@@ -1125,7 +1125,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
       <button type="button" class="theme-pill-btn" data-theme-val="light" onclick="window.SOWC_APP.setTheme('light')">☀️ 화이트</button>
     </div>
     <span class="meta-chip" id="gBarSchool">🏫 인천가원초등학교 (제12기)</span>
-    <span class="meta-chip" id="gBarSession">📌 2026학년도 제4회(임시회) · D-20 (11.17.)</span>
+    <span class="meta-chip" id="gBarSession">📌 2026학년도 제4회(임시회) · 2026. 11. 24.(화)</span>
     <button onclick="window.SOWC_APP.toggleChat()" style="background:#2E5A44;border-color:#4B8B6B;color:#fff;font-weight:750" title="학운위 AI 길잡이 · 스타로드 브릿지 열기 (Alt+G)">💬 학운위 AI 길잡이</button>
     <button onclick="window.SOWC_APP.syncAllTabs()" title="사전준비·위원현황·회의록 데이터를 즉시 동기화합니다">🔄 전 모듈 데이터 동기화</button>
     <button onclick="window.SOWC_APP.exportFullBackup()">💾 전체 백업(.json)</button>
@@ -1167,12 +1167,12 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
     <div class="kpi-card">
       <span class="k-lbl">현재 운영 기수 · 정수</span>
       <span class="k-val" id="kpiGisu">제12기 · 14명</span>
-      <span class="k-sub" id="kpiQuota">개회 과반수 8명 · 특별(2/3) 10명</span>
+      <span class="k-sub" id="kpiQuota">학부모 7 · 교원 5 · 지역 2 (과반 8명)</span>
     </div>
     <div class="kpi-card">
       <span class="k-lbl">차기 예정 회의 (진행 회차)</span>
-      <span class="k-val" id="kpiNextMeet">제4회 임시회 (11.17.)</span>
-      <span class="k-sub" id="kpiNoticeLimit">소집공고: 11. 10. (법정 마지노선: 11. 9.)</span>
+      <span class="k-val" id="kpiNextMeet">2026. 11. 24.(화) 제4회 임시회</span>
+      <span class="k-sub" id="kpiNoticeLimit">취합공지(3주전): 11. 3. · 취합(2주전): 11. 10. · 발송마감(당일포함8일전): 11. 17.</span>
     </div>
     <div class="kpi-card">
       <span class="k-lbl">연간 회의 일수 (조례 30일 한도)</span>
@@ -1183,6 +1183,32 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
       <span class="k-lbl">부서별 안건 · 추경 취합</span>
       <span class="k-val" id="kpiIntakeCnt">안건 3건 · 추경 6건</span>
       <span class="k-sub">사전준비 · 회의록 탭 원클릭 연동</span>
+    </div>
+  </div>
+
+  <!-- Notion Calendar & Notion DB Integration Panel -->
+  <div class="card" style="margin-bottom:16px;border-left:4px solid var(--accent);background:var(--paper-soft)">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <h2 style="margin:0;font-size:15px">🔗 노션 캘린더(Notion Calendar) & 가원초 학운위 노션 DB 연동</h2>
+        <span class="tag" id="notionCalSyncBadge">✓ 가원초 행정실 캘린더 · 학운위 안건 DB 연결됨</span>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn sm primary" onclick="window.SOWC_APP.openNotionCalendarLink('adminCal')">📅 가원초 행정실 노션 캘린더 열기 ↗</button>
+        <button type="button" class="btn sm" onclick="window.SOWC_APP.openNotionCalendarLink('sowcDash')">🏫 노션 학운위 대시보드 열기 ↗</button>
+        <button type="button" class="btn sm" onclick="window.SOWC_APP.openNotionCalendarLink('notionCalApp')">🗓️ Notion Calendar 웹 열기 ↗</button>
+        <button type="button" class="btn sm seal" onclick="window.SOWC_APP.exportNotionCalendarIcs()">⬇ 학운위 일정(.ics) 노션·구글캘린더 내보내기</button>
+      </div>
+    </div>
+    <div class="frow" style="margin-bottom:0;align-items:flex-end">
+      <div class="field w2">
+        <label>연동된 노션 캘린더 / 학운위 일정 DB 링크 (공유 링크 또는 노션 URL 붙여넣기 가능)</label>
+        <input type="url" id="notionCalUrlInput" value="https://www.notion.so/2dcef1e0d3c280b88774f51288132e16?v=2e9ef1e0d3c28009bc44000ceaab6e85" placeholder="https://www.notion.so/... 또는 https://calendar.notion.so/..." oninput="window.SOWC_APP.saveNotionCalUrl(this.value)">
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn sm" onclick="window.SOWC_APP.openCustomNotionCalUrl()">🔗 입력한 노션 링크 열기 ↗</button>
+        <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.syncNotionCalendarEvents()">🔄 노션 학운위 일정 동기화 (3주전·2주전·당일포함8일전 자동세팅)</button>
+      </div>
     </div>
   </div>
 
@@ -1202,7 +1228,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
       </div>
       <div class="cal-grid" id="calGrid"></div>
       <div class="frow" style="margin-top:12px;margin-bottom:0;align-items:flex-end">
-        <div class="field"><label>일자</label><input type="date" id="newEvDate" value="2026-11-17"></div>
+        <div class="field"><label>일자</label><input type="date" id="newEvDate" value="2026-11-24"></div>
         <div class="field w2"><label>일정명</label><input type="text" id="newEvTitle" placeholder="예: 제4회 임시회 안건 마감"></div>
         <div class="field"><label>구분</label>
           <select id="newEvType">
@@ -1223,7 +1249,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
         <div class="frow" style="align-items:flex-end">
           <div class="field"><label>회차</label><input type="number" id="ddayRound" value="4" min="1" max="20" oninput="window.SOWC_APP.onTab1DdayChange()"></div>
           <div class="field"><label>구분</label><select id="ddayKind" onchange="window.SOWC_APP.onTab1DdayChange()"><option value="임시회">임시회</option><option value="정기회">정기회</option></select></div>
-          <div class="field w2"><label>회의 개최 예정일</label><input type="date" id="ddayMeetDate" value="2026-11-17" oninput="window.SOWC_APP.onTab1DdayChange()" onchange="window.SOWC_APP.onTab1DdayChange()"></div>
+          <div class="field w2"><label>회의 개최 예정일</label><input type="date" id="ddayMeetDate" value="2026-11-24" oninput="window.SOWC_APP.onTab1DdayChange()" onchange="window.SOWC_APP.onTab1DdayChange()"></div>
           <button class="btn primary" onclick="window.SOWC_APP.applyDdayToCalendar()">⚡ 전체 모듈 일정 동기화</button>
         </div>
         <div id="ddayPreviewBox" class="quorum" style="margin-top:6px"></div>
@@ -1858,7 +1884,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
           <div class="mg-subbox">
             <h4>
               <span>📅 학교운영위원회 개최 일정 및 기본 정보</span>
-              <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.autoCalcStaffDeadlinesFromMeetDate()">⚡ 개최일 기준 제출기한(D-15) 자동계산</button>
+              <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.autoCalcStaffDeadlinesFromMeetDate()">⚡ 개최일 기준 자동 세팅 (3주전 공지 · 2주전 취합 · 당일포함 8일전 발송)</button>
             </h4>
             <div class="frow">
               <div class="field w2"><label>학교명</label><input type="text" id="stf_school" value="인천가원초등학교" oninput="window.SOWC_APP.generateStaffMessage()"></div>
@@ -1872,10 +1898,11 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
               </div>
             </div>
             <div class="frow" style="margin-bottom:0">
-              <div class="field"><label>학운위 개최 날짜</label><input type="date" id="stf_meetDate" value="2026-11-17" oninput="window.SOWC_APP.generateStaffMessage()"></div>
-              <div class="field"><label>개최 시간</label><input type="time" id="stf_meetTime" value="16:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>학운위 개최 날짜 (지정 시 자동 역산)</label><input type="date" id="stf_meetDate" value="2026-11-24" oninput="window.SOWC_APP.onStaffMeetDateChange(this.value)" onchange="window.SOWC_APP.onStaffMeetDateChange(this.value)"></div>
+              <div class="field"><label>개최 시간</label><input type="time" id="stf_meetTime" value="15:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
               <div class="field w2"><label>개최 장소</label><input type="text" id="stf_meetPlace" value="본관 2층 교장실" oninput="window.SOWC_APP.generateStaffMessage()"></div>
-              <div class="field"><label>소집공고 예정일</label><input type="date" id="stf_noticeDate" value="2026-11-10" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>안건취합 공지일 (3주 전 · D-21)</label><input type="date" id="stf_announceDate" value="2026-11-03" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>안건 발송 마감일 (당일포함 8일전 · D-7)</label><input type="date" id="stf_noticeDate" value="2026-11-17" oninput="window.SOWC_APP.generateStaffMessage()"></div>
             </div>
           </div>
 
@@ -1886,7 +1913,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
               <button type="button" class="btn sm ghost" onclick="window.SOWC_APP.addStaffAgenda()">➕ 예정안건 추가</button>
             </h4>
             <div class="frow" style="margin-bottom:0">
-              <div class="field"><label>안건 제출 마감일</label><input type="date" id="stf_agendaDeadlineDate" value="2026-11-03" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>안건취합 마감일 (2주 전 · D-14)</label><input type="date" id="stf_agendaDeadlineDate" value="2026-11-10" oninput="window.SOWC_APP.generateStaffMessage()"></div>
               <div class="field"><label>마감 시간</label><input type="time" id="stf_agendaDeadlineTime" value="16:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
               <div class="field w2"><label>안건 제출 방법 안내</label><input type="text" id="stf_agendaMethod" oninput="window.SOWC_APP.generateStaffMessage()"></div>
             </div>
@@ -1904,7 +1931,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
             </h4>
             <div class="frow">
               <div class="field"><label>추경 회차명</label><input type="text" id="stf_budgetRound" value="제4차 추가경정예산(안)" oninput="window.SOWC_APP.generateStaffMessage()"></div>
-              <div class="field"><label>추경 제출 마감일</label><input type="date" id="stf_budgetDeadlineDate" value="2026-11-02" oninput="window.SOWC_APP.generateStaffMessage()"></div>
+              <div class="field"><label>추경취합 마감일 (2주 전 · D-14)</label><input type="date" id="stf_budgetDeadlineDate" value="2026-11-10" oninput="window.SOWC_APP.generateStaffMessage()"></div>
               <div class="field"><label>마감 시간</label><input type="time" id="stf_budgetDeadlineTime" value="16:00" oninput="window.SOWC_APP.generateStaffMessage()"></div>
             </div>
             <div class="frow" style="margin-bottom:0">
@@ -3630,7 +3657,7 @@ async function loadSimui(file){
 }
 
 /* ============ 임시저장 ============ */
-const DRAFT_KEY = 'sowc_minutes_draft_v3_notion12';
+const DRAFT_KEY = 'sowc_minutes_draft_v4_notion_cal';
 
 /* ── 저장 버전 히스토리 (이전/다음) ── */
 const HIST_KEY = 'sowc_minutes_history_v1';
@@ -4216,7 +4243,7 @@ const DEFAULT_ANNAE_BODY =
 
 let state = {
   school:'인천가원초등학교', year:'2026', round:'4', kind:'임시회',
-  dt:'2026. 11. 17.(화) 16:00', place:'본관 2층 교장실', noticeNo:'2026-48', noticeDate:'2026. 11. 10.', total:14,
+  dt:'2026. 11. 24.(화) 15:00', place:'본관 2층 교장실', noticeNo:'2026-48', noticeDate:'2026. 11. 17.', total:14,
   ref:'학생, 학부모, 교직원, 지역인사 방청 가능 (방청 신청서 사전 제출)',
   prevReport:'지난 10월 13일 제3회 임시회에서 심의한 2027학년도 검·인정 도서 선정(안) 외 1건은 모두 원안대로 가결되었으며, 회의결과와 회의록은 학교홈페이지에 공개되었습니다. 금번 제4회 임시회에서는 2026학년도 겨울방학 초등돌봄교실 운영 계획(안) 등 모두 3건의 안건 제출에 따라 회의를 갖게 되었습니다.',
   agendaSummary:'2026학년도 겨울방학 초등돌봄교실 운영 계획(안) 외 2건',
@@ -4622,11 +4649,11 @@ function printPreview(id){
 
 /* ═══════════════ 저장/복원 ═══════════════ */
 function persist(){
-  try{ localStorage.setItem('swc_prep_v3_notion12', JSON.stringify(state)); }catch(e){}
+  try{ localStorage.setItem('swc_prep_v4_notion_cal', JSON.stringify(state)); }catch(e){}
 }
 function restore(){
   try{
-    const raw=localStorage.getItem('swc_prep_v3_notion12');
+    const raw=localStorage.getItem('swc_prep_v4_notion_cal');
     if(raw){ const s=JSON.parse(raw); state={...state,...s}; }
   }catch(e){}
 }
@@ -4708,31 +4735,37 @@ window.SOWC_PREP = {
    SOWC_APP Part 1: Master State, Tab 1 (Calendar/D-Day/Intake/Trip Rule) & Tab 2 (9-Stage Formation + 2026 Forms 1~7 HWPX)
    ═══════════════════════════════════════════════════════════════════════════ */
 (function(){
-  const STORAGE_KEY = 'sowc_master_v3_notion12';
+  const STORAGE_KEY = 'sowc_master_v4_notion_cal';
 
   const DEFAULT_EVENTS = [
     { date: '2026-03-04', title: '선관위 구성·선출공고', type: 'elect' },
     { date: '2026-03-11', title: '입후보 등록마감·결격조회', type: 'legal' },
     { date: '2026-03-18', title: '학부모·교원위원 선출·공고', type: 'elect' },
-    { date: '2026-03-25', title: '지역위원 선출·무투표 확정', type: 'elect' },
-    { date: '2026-04-01', title: '제12기 임기개시·제1회 정기회', type: 'meet' },
-    { date: '2026-06-18', title: '제2회 임시회 개최(결산·추경)', type: 'meet' },
-    { date: '2026-09-16', title: '급식소위원회 하반기 점검', type: 'subc' },
-    { date: '2026-10-02', title: '제3회 임시회 소집공고(7일전)', type: 'legal' },
-    { date: '2026-10-13', title: '제3회 임시회 개최(도서선정)', type: 'meet' },
-    { date: '2026-11-02', title: '제4회 추경예산 요구 마감', type: 'legal', roundTag: 4 },
-    { date: '2026-11-03', title: '제4회 심의안건 제출 마감', type: 'legal', roundTag: 4 },
-    { date: '2026-11-09', title: '제4회 법정공고 마지노선(불산입7일)', type: 'legal', roundTag: 4 },
-    { date: '2026-11-10', title: '제4회 소집공고·방청안내 발송', type: 'legal', roundTag: 4 },
+    { date: '2026-03-26', title: '제1회 안건취합 공지(3주전)', type: 'legal', roundTag: 1 },
+    { date: '2026-03-28', title: '지역위원 선출·무투표 확정', type: 'elect' },
+    { date: '2026-04-02', title: '제1회 안건취합 마감(2주전)', type: 'legal', roundTag: 1 },
+    { date: '2026-04-09', title: '제1회 안건발송 마감(당일포함8일전)', type: 'legal', roundTag: 1 },
+    { date: '2026-04-16', title: '제1회 임시회 본회의 (15:00)', type: 'meet', roundTag: 1 },
+    { date: '2026-06-24', title: '제2회 안건취합 공지(3주전)', type: 'legal', roundTag: 2 },
+    { date: '2026-07-01', title: '제2회 안건취합 마감(2주전)', type: 'legal', roundTag: 2 },
+    { date: '2026-07-08', title: '제2회 안건발송 마감(당일포함8일전)', type: 'legal', roundTag: 2 },
+    { date: '2026-07-15', title: '제2회 임시회 본회의 (14:00)', type: 'meet', roundTag: 2 },
+    { date: '2026-09-22', title: '제3회 안건취합 공지(3주전)', type: 'legal', roundTag: 3 },
+    { date: '2026-09-29', title: '제3회 안건취합 마감(2주전)', type: 'legal', roundTag: 3 },
+    { date: '2026-10-06', title: '제3회 안건발송 마감(당일포함8일전)', type: 'legal', roundTag: 3 },
+    { date: '2026-10-13', title: '제3회 임시회 본회의 (15:00)', type: 'meet', roundTag: 3 },
+    { date: '2026-11-03', title: '제4회 안건취합 공지 (3주전·D-21)', type: 'legal', roundTag: 4 },
+    { date: '2026-11-10', title: '제4회 안건취합 마감 (2주전·D-14)', type: 'legal', roundTag: 4 },
     { date: '2026-11-13', title: '방과후·돌봄 소위원회 사전검토', type: 'subc' },
-    { date: '2026-11-17', title: '제4회 임시회 본회의 (16:00)', type: 'meet', roundTag: 4 }
+    { date: '2026-11-17', title: '제4회 안건발송 마감 (당일포함8일전·D-7)', type: 'legal', roundTag: 4 },
+    { date: '2026-11-24', title: '제4회 임시회 본회의 (15:00)', type: 'meet', roundTag: 4 }
   ];
 
   const DEFAULT_SESSIONS = [
-    { round: 1, kind: '정기회', date: '2026. 4. 1.(수) 15:00', notice: '2026. 3. 23.', agendas: 5, status: '회의록 공개완료', days: 1, summary: '제12기 위원장·부위원장 선출, 학교교육과정 및 소위원회 구성 심의' },
-    { round: 2, kind: '임시회', date: '2026. 6. 18.(목) 15:00', notice: '2026. 6. 9.', agendas: 4, status: '회의록 공개완료', days: 1, summary: '전년도 학교회계 세입·세출 결산(안) 및 제1차 추가경정예산(안) 심의' },
-    { round: 3, kind: '임시회', date: '2026. 10. 13.(화) 15:00', notice: '2026. 10. 2.', agendas: 2, status: '회의록 공개완료', days: 1, summary: '2027학년도 검·인정 교과용도서 선정(안) 외 1건 심의 (원안가결)' },
-    { round: 4, kind: '임시회', date: '2026. 11. 17.(화) 16:00', notice: '2026. 11. 10.', agendas: 3, status: '사전준비·소집공고 진행중', days: 1, active: true, summary: '겨울방학 초등돌봄교실 운영(안), 2027 급식 식재료 구매방법(안), 제4차 추경예산(안)' }
+    { round: 1, kind: '임시회', isoDate: '2026-04-16', date: '2026. 4. 16.(목) 15:00', notice: '2026. 4. 9.', agendas: 15, status: '회의록 공개완료', days: 1, summary: '제12기 위원장·부위원장 선출, 급식·체육소위 구성, 학교교육과정 및 결산·1차 추경 등 15건 심의' },
+    { round: 2, kind: '임시회', isoDate: '2026-07-15', date: '2026. 7. 15.(수) 14:00', notice: '2026. 7. 8.', agendas: 5, status: '회의록 공개완료', days: 1, summary: '유치원·초등 방과후·돌봄 여름방학 운영계획, 방과후·돌봄 소위원회 설치 및 2차 추경 등 5건 심의' },
+    { round: 3, kind: '임시회', isoDate: '2026-10-13', date: '2026. 10. 13.(화) 15:00', notice: '2026. 10. 6.', agendas: 2, status: '회의록 공개완료', days: 1, summary: '2027학년도 검·인정 교과용도서 선정(안) 및 제3차 추가경정예산(안) 2건 심의' },
+    { round: 4, kind: '임시회', isoDate: '2026-11-24', date: '2026. 11. 24.(화) 15:00', notice: '2026. 11. 17.', agendas: 3, status: '안건취합·사전준비 진행중', days: 1, active: true, summary: '겨울방학 초등돌봄교실 운영(안), 2027 급식 식재료 구매방법(안), 제4차 추경예산(안)' }
   ];
 
   const DEFAULT_INTAKES = [
@@ -4905,7 +4938,7 @@ window.SOWC_PREP = {
     for (let d = 1; d <= lastDate; d++) {
       const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const evs = appState.events.filter(e => e.date === ds);
-      const activeMeetIso = appState.activeMeetIso || '2026-11-17';
+      const activeMeetIso = appState.activeMeetIso || '2026-11-24';
       const isToday = (ds === activeMeetIso);
       html += `<div class="cal-cell${isToday ? ' today' : ''}">`
         + `<span class="d-num">${d}</span>`
@@ -4970,21 +5003,21 @@ window.SOWC_PREP = {
     const [y, m, d] = val.split('-').map(Number);
     const meet = new Date(y, m - 1, d);
     const addD = (n) => new Date(meet.getTime() + n * 86400000);
-    const dIntake = addD(-14);
-    const dNoticeLimit = addD(-8); // 발송일 불산입 7일 전 확보 마지노선
-    const dRemind = addD(-1);
-    const dResult = addD(2);
+    const dAnnounce = addD(-21);   // 3주 전: 안건취합 공지
+    const dIntake = addD(-14);     // 2주 전: 안건취합 마감
+    const dSendLimit = addD(-7);   // 당일포함 8일 전 (D-7): 학운위 안건 발송 마감일
+    const dRemind = addD(-1);      // D-1: 참석 리마인더
 
-    const stf = window.SOWC_APP && window.SOWC_APP.getStaffState ? window.SOWC_APP.getStaffState() : null;
+    const stf = window.SOWC_APP && window.SOWC_APP.msgState ? window.SOWC_APP.msgState.staff : null;
+    const annTxt = (stf && stf.announceDate) ? fmtDateDot(new Date(stf.announceDate + 'T00:00:00')) : fmtDateDot(dAnnounce);
     const agDeadTxt = (stf && stf.agendaDeadlineDate) ? fmtDateDot(new Date(stf.agendaDeadlineDate + 'T00:00:00')) : fmtDateDot(dIntake);
-    const bgDeadTxt = (stf && stf.budgetDeadlineDate) ? fmtDateDot(new Date(stf.budgetDeadlineDate + 'T00:00:00')) : fmtDateDot(dIntake);
-    const noticeTxt = (stf && stf.noticeDate) ? fmtDateDot(new Date(stf.noticeDate + 'T00:00:00')) : fmtDateDot(dNoticeLimit);
-    const timeTxt = (stf && stf.meetTime) ? stf.meetTime : '16:00';
+    const sendLimitTxt = (stf && stf.noticeDate) ? fmtDateDot(new Date(stf.noticeDate + 'T00:00:00')) : fmtDateDot(dSendLimit);
+    const timeTxt = (stf && stf.meetTime) ? stf.meetTime : '15:00';
 
     box.innerHTML = `
-      <div style="font-weight:750;color:var(--accent);margin-bottom:4px">📌 제${round}회(${kind}) 개최일(${fmtDateDot(meet)} ${timeTxt}) 기준 타임라인 (전 탭 실시간 연동)</div>
-      <div>• <b>안건 마감</b>: ${agDeadTxt} &nbsp;|&nbsp; <b>추경 마감</b>: ${bgDeadTxt} &nbsp;|&nbsp; <b>소집공고 예정일</b>: <b>${noticeTxt}</b></div>
-      <div>• <b style="color:var(--seal)">법정 공고 마지노선 (발송일 불산입 7일 전)</b>: <b>${fmtDateDot(dNoticeLimit)}</b> &nbsp;|&nbsp; <b>참석 리마인더(D-1)</b>: ${fmtDateDot(dRemind)}</div>
+      <div style="font-weight:750;color:var(--accent);margin-bottom:4px">📌 제${round}회(${kind}) 개최일(${fmtDateDot(meet)} ${timeTxt}) 기준 자동 세팅 타임라인 (전 탭 실시간 연동)</div>
+      <div>• <b>안건취합 공지 (3주 전 · D-21)</b>: <b>${annTxt}</b> &nbsp;|&nbsp; <b>안건·추경 취합 마감 (2주 전 · D-14)</b>: <b>${agDeadTxt}</b></div>
+      <div>• <b style="color:var(--seal)">학운위 안건 발송 마감일 (당일포함 8일 전 · D-7)</b>: <b>${sendLimitTxt}</b> &nbsp;|&nbsp; <b>참석 리마인더(D-1)</b>: ${fmtDateDot(dRemind)}</div>
     `;
   }
 
@@ -5027,6 +5060,13 @@ window.SOWC_PREP = {
     if (!s) return;
     appState.sessions.forEach(x => x.active = (x.round === round));
     renderSessionPipeline();
+    const iso = s.isoDate || '2026-11-24';
+    appState.activeMeetIso = iso;
+    const [yy, mm] = iso.split('-').map(Number);
+    if (yy && mm) { appState.calYear = yy; appState.calMonth = mm; }
+    if (document.getElementById('ddayRound')) document.getElementById('ddayRound').value = String(s.round);
+    if (document.getElementById('ddayKind')) document.getElementById('ddayKind').value = s.kind;
+    if (document.getElementById('ddayMeetDate')) document.getElementById('ddayMeetDate').value = iso;
     if (window.SOWC_PREP) {
       window.SOWC_PREP.state.round = String(s.round);
       window.SOWC_PREP.state.kind = s.kind;
@@ -5036,11 +5076,13 @@ window.SOWC_PREP = {
       window.SOWC_PREP.refresh();
       window.SOWC_PREP.syncToMinutes();
     }
-    if (window.SOWC_APP.syncFromDashboardToGenerators) {
-      window.SOWC_APP.syncFromDashboardToGenerators(true);
+    if (window.SOWC_APP.syncScheduleEverywhere) {
+      window.SOWC_APP.syncScheduleEverywhere('session-preset', { round: s.round, kind: s.kind, date: iso, silent: true });
     }
+    previewDdayCalc();
+    renderCalendar();
     document.getElementById('gBarSession').textContent = `📌 2026학년도 제${s.round}회(${s.kind}) · ${s.status}`;
-    toast(`제${s.round}회(${s.kind}) 정보를 사전준비 및 회의록 모듈로 불러왔습니다.`);
+    toast(`제${s.round}회(${s.kind}) 일정(3주전 공지·2주전 취합·당일포함8일전 발송)을 전 모듈로 불러왔습니다.`);
   }
 
   /* ── TAB 1: Department Agenda & Budget Intake + 1-Day Field Trip Rule ── */
@@ -5842,6 +5884,10 @@ window.SOWC_PREP = {
 
   KB_QA.unshift(
     {
+      keys: ['노션', '캘린더', '발송마감', '3주', '2주', '8일', '취합공지', '안건취합'],
+      ans: `<b>[노션 캘린더 연동 및 학운위 날짜 자동 역산 세팅 기준]</b><br>• <b>노션 캘린더 연동</b>: 상단 <b>[1. 학운위 캘린더]</b>의 <b>「🔗 노션 캘린더 연동」</b> 패널에서 가원초 행정실 노션 캘린더·학운위 대시보드 바로가기 및 <code>.ics</code> 파일 내보내기를 지원합니다.<br>• <b>학운위 개최일(D-day) 지정 시 3단계 자동 세팅</b>:<br>&nbsp;&nbsp;① <b>안건취합 공지일</b>: 개최일 기준 <b>3주 전 (D-21)</b><br>&nbsp;&nbsp;② <b>안건·추경 취합 마감일</b>: 개최일 기준 <b>2주 전 (D-14)</b><br>&nbsp;&nbsp;③ <b>학운위 안건 발송 마감일</b>: 개최일 <b>당일 포함 8일 전 (D-7, 법정 7일 전 통지)</b>`
+    },
+    {
       keys: ['명단', '위원현황', '누구', '12기', '제12기', '인원', '정수', '비율', '위원장'],
       ans: `<b>[인천가원초등학교 제12기(2026학년도) 학교운영위원회 위원 현황 — 노션 DB 동기화]</b><br>• <b>총원 14명</b> (학부모위원 7명 50.0% · 교원위원 5명 35.7% · 지역위원 2명 14.3% — 법정 비율 적법 ✔)<br>• <b>학부모위원(7명)</b>: 권효정(위원장), 강지혜, 김보람, 문해영, 변정현, 주선숙, 성유진(병설유치원)<br>• <b>교원위원(5명)</b>: 최정민(당연직 학교장), 박승현, 홍자영, 이상민, 고미선(병설유치원)<br>• <b>지역위원(2명)</b>: 윤지영(부위원장), 서지영<br><span style="font-size:11.5px;color:var(--ink-soft)">※ 연락처 및 이메일 등 개인정보는 보안 수칙에 따라 화면·코드에 일절 노출되지 않습니다.</span>`
     },
@@ -6016,7 +6062,7 @@ window.SOWC_PREP = {
   const APP = window.SOWC_APP;
   if (!APP) return;
 
-  const MSG_STORAGE_KEY = 'sowc_msg_gen_v3_notion12';
+  const MSG_STORAGE_KEY = 'sowc_msg_gen_v4_notion_cal';
 
   /* ── 0. Theme Switcher (Cream Tone Default / Soft Sage / Dark Slate) ── */
   function setTheme(themeName) {
@@ -6104,11 +6150,12 @@ window.SOWC_PREP = {
     meetDate: '2026-11-24',
     meetTime: '15:00',
     meetPlace: '본관 2층 교장실(운영위원회 회의실)',
-    agendaDeadlineDate: '2026-11-09',
+    announceDate: '2026-11-03',
+    agendaDeadlineDate: '2026-11-10',
     agendaDeadlineTime: '16:00',
-    budgetDeadlineDate: '2026-11-09',
+    budgetDeadlineDate: '2026-11-10',
     budgetDeadlineTime: '16:00',
-    noticeDate: '2026-11-13',
+    noticeDate: '2026-11-17',
     agendaMethod: '부서별 내부결재 완료 후 K-에듀파인 [학교운영위원회-안건관리-안건제출] 등록 및 심의자료 한글파일(.hwpx) 행정실 제출',
     budgetMethod: 'K-에듀파인 [학교회계-예산편성-예산요구등록] 입력 후 부서별 추경예산 요구서(산출기초·목적사업비 교부공문 포함) 행정실 제출',
     contact: '행정실 (학운위·예산 담당 이호철 행정실장)',
@@ -6197,17 +6244,29 @@ window.SOWC_PREP = {
     saveMsgGenState();
   }
 
-  function autoCalcStaffDeadlinesFromMeetDate() {
-    const meetVal = (document.getElementById('stf_meetDate') || {}).value;
+  function autoCalcStaffDeadlinesFromMeetDate(silent) {
+    const meetVal = (document.getElementById('stf_meetDate') || {}).value || staffState.meetDate;
     if (!meetVal) return;
     staffState.meetDate = meetVal;
-    staffState.agendaDeadlineDate = shiftIsoDate(meetVal, -15);
-    staffState.budgetDeadlineDate = shiftIsoDate(meetVal, -15);
-    staffState.noticeDate = shiftIsoDate(meetVal, -11);
+    staffState.announceDate = shiftIsoDate(meetVal, -21);       // 3주 전: 안건취합 공지
+    staffState.agendaDeadlineDate = shiftIsoDate(meetVal, -14); // 2주 전: 안건취합 마감
+    staffState.budgetDeadlineDate = shiftIsoDate(meetVal, -14); // 2주 전: 추경취합 마감
+    staffState.noticeDate = shiftIsoDate(meetVal, -7);          // 당일포함 8일 전 (D-7): 안건발송 마감
     fillStaffFormFields();
     generateStaffMessage();
     saveMsgGenState();
-    APP.toast('개최일 기준으로 안건·추경 제출기한(D-15) 및 소집공고 예정일(D-11)을 자동 산출했습니다.');
+    if (!silent) {
+      APP.toast('학운위 날짜 기준으로 안건취합공지(3주전)·안건취합(2주전)·안건발송마감(당일포함 8일전)이 자동 세팅되었습니다.');
+    }
+  }
+
+  function onStaffMeetDateChange(val) {
+    if (!val) return;
+    staffState.meetDate = val;
+    autoCalcStaffDeadlinesFromMeetDate(true);
+    if (APP.syncScheduleEverywhere && !APP._isSyncing) {
+      APP.syncScheduleEverywhere('staff-gen', { date: val, silent: false });
+    }
   }
 
   function renderStaffAgendaInputs() {
@@ -6298,6 +6357,7 @@ window.SOWC_PREP = {
     staffState.agendaDeadlineTime = getV('stf_agendaDeadlineTime', staffState.agendaDeadlineTime);
     staffState.budgetDeadlineDate = getV('stf_budgetDeadlineDate', staffState.budgetDeadlineDate);
     staffState.budgetDeadlineTime = getV('stf_budgetDeadlineTime', staffState.budgetDeadlineTime);
+    staffState.announceDate = getV('stf_announceDate', staffState.announceDate || shiftIsoDate(staffState.meetDate, -21));
     staffState.noticeDate = getV('stf_noticeDate', staffState.noticeDate);
     staffState.agendaMethod = getV('stf_agendaMethod', staffState.agendaMethod);
     staffState.budgetMethod = getV('stf_budgetMethod', staffState.budgetMethod);
@@ -6326,6 +6386,7 @@ window.SOWC_PREP = {
     setV('stf_agendaDeadlineTime', staffState.agendaDeadlineTime);
     setV('stf_budgetDeadlineDate', staffState.budgetDeadlineDate);
     setV('stf_budgetDeadlineTime', staffState.budgetDeadlineTime);
+    setV('stf_announceDate', staffState.announceDate || shiftIsoDate(staffState.meetDate, -21));
     setV('stf_noticeDate', staffState.noticeDate);
     setV('stf_agendaMethod', staffState.agendaMethod);
     setV('stf_budgetMethod', staffState.budgetMethod);
@@ -6368,8 +6429,9 @@ window.SOWC_PREP = {
     if (s.optBudgetGuide) bullets.push('- 목적사업비 교부내역·불용액 반영');
     if (s.optAttendProposer) bullets.push('- 제안부서 담당자 회의 참석');
     if (s.optLateWarn) bullets.push('- 기한 후 제출분은 금회 상정 불가');
+    const sendLimitStr = formatKoreanDate(s.noticeDate || shiftIsoDate(s.meetDate, -7), false);
     let body = `안녕하십니까, 행정실입니다. ${meetTitle}를 ${meetDtStr} ${s.meetPlace}에서 개최합니다.\n\n`;
-    body += `추경예산 요구자료는 ${bgDead}까지, 안건 심의자료는 ${agDead}까지 ${s.contact || '행정실'}로 제출해 주시기 바랍니다.`;
+    body += `학운위 안건 발송 마감일(${sendLimitStr}, 개최일 당일포함 8일 전) 준수를 위해, 추경예산 요구자료는 ${bgDead}까지, 안건 심의자료는 ${agDead}(개최 2주 전)까지 ${s.contact || '행정실'}로 제출해 주시기 바랍니다.`;
     if (bullets.length) body += `\n${bullets.join('\n')}`;
     body += `\n\n기한 내 제출에 협조해 주셔서 감사합니다.`;
     const subjEl = document.getElementById('stfPreviewSubject');
@@ -7117,8 +7179,10 @@ window.SOWC_PREP = {
           staffState.meetTime = mDt[4].padStart(5, '0');
           commState.meetingTime = mDt[4].padStart(5, '0');
         }
-        staffState.agendaDeadlineDate = shiftIsoDate(iso, -15);
-        staffState.budgetDeadlineDate = shiftIsoDate(iso, -15);
+        staffState.announceDate = shiftIsoDate(iso, -21);
+        staffState.agendaDeadlineDate = shiftIsoDate(iso, -14);
+        staffState.budgetDeadlineDate = shiftIsoDate(iso, -14);
+        staffState.noticeDate = shiftIsoDate(iso, -7);
       }
 
       const nDt = String(prep.noticeDate || '').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
@@ -7208,46 +7272,172 @@ window.SOWC_PREP = {
   function deleteSavedCommItem(i) { _del('comm', i); }
   function _setT(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
   function _setV(id, v) { const el = document.getElementById(id); if (el && v != null) el.value = v; }
+  const NOTION_LINKS = {
+    adminCal: 'https://www.notion.so/2dcef1e0d3c280b88774f51288132e16?v=2e9ef1e0d3c28009bc44000ceaab6e85',
+    sowcDash: 'https://www.notion.so/2daef1e0d3c280ac8effe215f3e3ef65',
+    sowcAgendaDb: 'https://www.notion.so/2f1ef1e0d3c2803f99dfcc244e3a4cb0',
+    notionCalApp: 'https://calendar.notion.so/'
+  };
+
+  function saveNotionCalUrl(url) {
+    try { localStorage.setItem('sowc_notion_cal_url', String(url || '').trim()); } catch (e) {}
+  }
+
+  function loadNotionCalUrl() {
+    try {
+      const saved = localStorage.getItem('sowc_notion_cal_url');
+      const inp = document.getElementById('notionCalUrlInput');
+      if (saved && inp) inp.value = saved;
+    } catch (e) {}
+  }
+
+  function openNotionCalendarLink(key) {
+    const url = NOTION_LINKS[key] || NOTION_LINKS.adminCal;
+    window.open(url, '_blank', 'noopener');
+  }
+
+  function openCustomNotionCalUrl() {
+    const inp = document.getElementById('notionCalUrlInput');
+    const url = (inp && inp.value.trim()) || NOTION_LINKS.adminCal;
+    saveNotionCalUrl(url);
+    window.open(url, '_blank', 'noopener');
+  }
+
+  function syncNotionCalendarEvents() {
+    const round = _val('ddayRound') || staffState.round || '4';
+    const kind = _val('ddayKind') || staffState.kind || '임시회';
+    const date = _val('ddayMeetDate') || staffState.meetDate || '2026-11-24';
+    syncScheduleEverywhere('notion-sync', { round, kind, date, silent: false });
+    const bdg = document.getElementById('notionCalSyncBadge');
+    if (bdg) bdg.textContent = `✓ 노션 캘린더 동기화 완료 (제${round}회: 3주전 공지 · 2주전 취합 · 당일포함8일전 발송)`;
+    _toast(`노션 캘린더 및 제${round}회 학운위 일정(3주전 공지·2주전 취합·당일포함8일전 발송마감)이 동기화되었습니다!`);
+  }
+
+  function exportNotionCalendarIcs() {
+    const st = APP.appState;
+    const evs = (st && Array.isArray(st.events)) ? st.events : [];
+    const nowStamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Incheon Gawon Elementary School//SOWC Notion Calendar Sync//KO',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'X-WR-CALNAME:인천가원초 학교운영위원회 일정 (노션 캘린더 연동)',
+      'X-WR-TIMEZONE:Asia/Seoul'
+    ];
+    evs.forEach((e, idx) => {
+      if (!e.date) return;
+      const dtStart = e.date.replace(/-/g, '');
+      const nextDay = shiftIsoDate(e.date, 1).replace(/-/g, '');
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:sowc-2026-${idx}-${dtStart}@gawon.ice.es.kr`,
+        `DTSTAMP:${nowStamp}`,
+        `DTSTART;VALUE=DATE:${dtStart}`,
+        `DTEND;VALUE=DATE:${nextDay}`,
+        `SUMMARY:[가원초 학운위] ${e.title}`,
+        `DESCRIPTION:인천가원초등학교 학교운영위원회 일정 (${e.title}) - 노션 학운위 대시보드 연동`,
+        'END:VEVENT'
+      );
+    });
+    lines.push('END:VCALENDAR');
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    if (window.SOWC_PREP && window.SOWC_PREP.saveBlob) {
+      window.SOWC_PREP.saveBlob(blob, '인천가원초_학교운영위원회_노션캘린더_일정.ics');
+    }
+    _toast('노션 캘린더·구글 캘린더에 바로 가져올 수 있는 .ics 일정 파일을 생성했습니다.');
+  }
+
   function syncScheduleEverywhere(source, opts) {
     if (APP._isSyncing) return; APP._isSyncing = true;
     try {
       opts = opts || {};
-      const round = String(opts.round || _val('ddayRound') || staffState.round);
-      const kind = opts.kind || _val('ddayKind') || staffState.kind;
-      const date = opts.date || _val('ddayMeetDate') || staffState.meetDate;
-      const time = opts.time || staffState.meetTime;
-      const place = opts.place || staffState.meetPlace;
-      const notice = shiftIsoDate(date, -7);
+      const round = String(opts.round || _val('ddayRound') || staffState.round || '4');
+      const kind = opts.kind || _val('ddayKind') || staffState.kind || '임시회';
+      const date = opts.date || _val('ddayMeetDate') || staffState.meetDate || '2026-11-24';
+      const time = opts.time || staffState.meetTime || '15:00';
+      const place = opts.place || staffState.meetPlace || '본관 2층 교장실';
+
+      // 핵심 규칙:
+      // 1) 안건취합 공지: 3주 전 (D-21, -21일)
+      // 2) 안건취합 마감: 2주 전 (D-14, -14일)
+      // 3) 학운위 안건 발송 마감일: 당일 포함 8일 전 (D-7, -7일)
+      const announceIso = shiftIsoDate(date, -21);
+      const intakeIso = shiftIsoDate(date, -14);
+      const sendLimitIso = shiftIsoDate(date, -7);
+
       _setV('ddayRound', round); _setV('ddayKind', kind); _setV('ddayMeetDate', date);
-      _setT('gBarSession', `📌 ${staffState.year}학년도 제${round}회(${kind})`);
-      _setT('gBarSchool', staffState.school);
+      _setV('newEvDate', date);
+      _setT('gBarSession', `📌 ${staffState.year}학년도 제${round}회(${kind}) · ${formatDotDate(date)}`);
+      _setT('gBarSchool', `🏫 ${staffState.school} (제12기)`);
       _setT('kpiNextMeet', `${formatDotDate(date)} 제${round}회 ${kind}`);
-      _setT('kpiNoticeLimit', formatDotDate(notice));
+      _setT('kpiNoticeLimit', `취합공지(3주전): ${formatDotDate(announceIso)} · 취합(2주전): ${formatDotDate(intakeIso)} · 발송마감(당일포함8일전): ${formatDotDate(sendLimitIso)}`);
+
       const st = APP.appState;
-      if (st && Array.isArray(st.events)) {
-        const old = { '2026-11-24': 0, '2026-11-13': -7, '2026-11-16': -10, '2026-11-09': -14 };
-        st.events.forEach(e => { if (e.date in old && date !== '2026-11-24') e.date = shiftIsoDate(date, old[e.date]); });
-        let main = st.events.find(e => e.type === 'meet' && new RegExp(`제${round}회`).test(e.title));
-        if (!main) { main = { type: 'meet' }; st.events.push(main); }
-        main.date = date; main.title = `제${round}회 ${kind} 개최`;
-        [[-7, 'D-7 소집공고·안건발송', 'legal'], [-10, 'D-10 안건 확정', 'legal'], [-14, 'D-14 안건·추경자료 제출마감', 'legal']].forEach(([o, t, ty]) => {
-          let ev = st.events.find(e => (e.title || '').startsWith(t.split(' ')[0]));
-          if (!ev) { ev = { title: t, type: ty }; st.events.push(ev); }
-          ev.date = shiftIsoDate(date, o);
-        });
+      if (st) {
+        st.activeMeetIso = date;
+        const [yy, mm] = date.split('-').map(Number);
+        if (yy && mm) { st.calYear = yy; st.calMonth = mm; }
+        if (Array.isArray(st.events)) {
+          // Remove previous auto-generated milestone events for this round so they cleanly update to the new date
+          const rNum = Number(round);
+          st.events = st.events.filter(e => {
+            if (e.roundTag === rNum) return false;
+            if (new RegExp(`^제${round}회\s*(안건취합|추경|심의안건|법정공고|소집공고|안건발송|임시회|정기회)`).test(e.title || '')) return false;
+            if (/^D-(7|10|14|21)\s/.test(e.title || '')) return false;
+            return true;
+          });
+          st.events.push(
+            { date: announceIso, title: `제${round}회 안건취합 공지 (3주전·D-21)`, type: 'legal', roundTag: rNum },
+            { date: intakeIso, title: `제${round}회 안건취합 마감 (2주전·D-14)`, type: 'legal', roundTag: rNum },
+            { date: sendLimitIso, title: `제${round}회 안건발송 마감 (당일포함8일전·D-7)`, type: 'legal', roundTag: rNum },
+            { date: date, title: `제${round}회 ${kind} 본회의 (${time})`, type: 'meet', roundTag: rNum }
+          );
+          st.events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+        }
+        if (Array.isArray(st.sessions)) {
+          const sess = st.sessions.find(x => String(x.round) === round);
+          if (sess) {
+            sess.isoDate = date;
+            sess.date = `${formatDotDate(date)} ${time}`;
+            sess.notice = formatDotDate(sendLimitIso);
+            sess.kind = kind;
+          }
+          if (APP.renderSessionPipeline) try { APP.renderSessionPipeline(); } catch (e) {}
+        }
         if (APP.renderCalendar) try { APP.renderCalendar(); } catch (e) {}
+        if (APP.previewDdayCalc) try { APP.previewDdayCalc(); } catch (e) {}
         if (APP.saveMasterState) try { APP.saveMasterState(); } catch (e) {}
       }
-      if (window.SOWC_PREP && source !== 'prep') { const p = window.SOWC_PREP.state; p.round = round; p.kind = kind; p.dt = date; p.noticeDate = notice; try { window.SOWC_PREP.fillFields(); window.SOWC_PREP.refresh(); } catch (e) {} }
-      if (window.SOWC_MINUTES && window.SOWC_MINUTES.refresh) try { window.SOWC_MINUTES.refresh(); } catch (e) {}
-      Object.assign(staffState, { round, kind, meetDate: date, meetTime: time, meetPlace: place, noticeDate: notice });
-      Object.assign(commState, { meetingDate: date, meetingTime: time, roundPrefix: `${staffState.year}학년도 제${round}회 `, meetType: kind === '정기회' ? 'regular' : 'special' });
+      if (window.SOWC_PREP && source !== 'prep') {
+        const p = window.SOWC_PREP.state;
+        p.round = round;
+        p.kind = kind;
+        p.dt = `${formatDotDate(date)} ${time}`;
+        p.noticeDate = formatDotDate(sendLimitIso);
+        try { window.SOWC_PREP.fillFields(); window.SOWC_PREP.refresh(); } catch (e) {}
+      }
+      if (window.SOWC_MINUTES && window.SOWC_MINUTES.refresh) try { window.SOWC_MINUTES.refresh(true); } catch (e) {}
+      Object.assign(staffState, {
+        round, kind, meetDate: date, meetTime: time, meetPlace: place,
+        announceDate: announceIso,
+        agendaDeadlineDate: intakeIso,
+        budgetDeadlineDate: intakeIso,
+        noticeDate: sendLimitIso
+      });
+      Object.assign(commState, {
+        meetingDate: date, meetingTime: time,
+        roundPrefix: `${staffState.year}학년도 제${round}회 `,
+        meetType: kind === '정기회' ? 'regular' : 'special'
+      });
       fillStaffFormFields(); fillCommFormFields();
-      autoCalcStaffDeadlinesFromMeetDate(true);
-      fillStaffFormFields();
       if (!staffState._manual) generateStaffMessage();
       if (!commState._manual) generateCommMessage();
       saveMsgGenState();
+      if (!opts.silent) {
+        _toast(`제${round}회(${kind}) 개최일(${date}) 기준 → 안건취합공지(${announceIso}, 3주전) · 안건취합(${intakeIso}, 2주전) · 발송마감(${sendLimitIso}, 당일포함8일전) 자동 세팅 완료!`);
+      }
     } finally { APP._isSyncing = false; }
   }
   function syncIntakesEverywhere(source) {
@@ -7296,12 +7486,13 @@ window.SOWC_PREP = {
     saveStaffNoticeExplicit, saveCommMessageExplicit, saveAllMsgGeneratorsExplicit,
     onStaffManualEdit, onCommManualEdit, regenerateStaffFromForm, regenerateCommFromForm,
     onOpenMsgGenTab, loadSavedStaffItem, deleteSavedStaffItem, loadSavedCommItem, deleteSavedCommItem,
-    syncScheduleEverywhere, syncIntakesEverywhere, onTab1DdayChange, autoCalcStaffDeadlinesFromMeetDate,
+    syncScheduleEverywhere, syncIntakesEverywhere, onTab1DdayChange, autoCalcStaffDeadlinesFromMeetDate, onStaffMeetDateChange, saveNotionCalUrl, openNotionCalendarLink, openCustomNotionCalUrl, syncNotionCalendarEvents, exportNotionCalendarIcs,
     _isSyncing: false
   });
 
   function initPart3() {
     initTheme();
+    loadNotionCalUrl();
     loadMsgGenState();
     fillStaffFormFields();
     fillCommFormFields();
