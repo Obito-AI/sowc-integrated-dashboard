@@ -3002,7 +3002,7 @@ function renderSpeakers(){
   const tb = $('spkBody'); tb.innerHTML='';
   const counts = {};
   state.items.forEach(it=>{ if(it.kind==='utt') counts[it.spk]=(counts[it.spk]||0)+1; });
-  for(const orig of Object.keys(state.speakers)){
+  for(const orig of Object.keys(state.speakers).filter(k=>k!==ALL_SPK)){
     const s = state.speakers[orig];
     const n = counts[orig] || 0;
     const tr = document.createElement('tr');
@@ -3036,6 +3036,7 @@ function spkUndoToast(msg, snap){
 function spkMove(from, to){ state.items.forEach(it=>{ if(it.kind==='utt' && it.spk===from) it.spk=to; }); (state.rawUtts||[]).forEach(u=>{ if(u.speaker===from) u.speaker=to; }); }
 function spkRename(orig, v){
   const snap=spkSnap();
+  if(v===ALL_SPK){ toast("'전체위원'은 고정 항목이라 이 이름으로 바꿀 수 없습니다. 발언 카드에서 '전체위원'을 고르세요."); renderSpeakers(); return; }
   if(state.speakers[v]){
     if(!confirm(`'${v}' 화자가 이미 있습니다. 두 화자를 합칠까요?\n'${orig}'의 발언이 모두 '${v}'(으)로 옮겨집니다.`)){ renderSpeakers(); return; }
     spkMove(orig, v); delete state.speakers[orig]; spkAfter(); spkUndoToast(`'${orig}' → '${v}' 합침`, snap); return;
@@ -3046,7 +3047,7 @@ function spkRename(orig, v){
 function spkDelete(orig, n){
   const snap=spkSnap();
   if(!n){ delete state.speakers[orig]; spkAfter(); spkUndoToast(`화자 '${orig}' 삭제`, snap); return; }
-  const others=Object.keys(state.speakers).filter(k=>k!==orig);
+  const others=Object.keys(state.speakers).filter(k=>k!==orig&&k!==ALL_SPK).concat([ALL_SPK]);
   let m=document.getElementById('spkDelModal'); if(m) m.remove();
   m=document.createElement('div'); m.id='spkDelModal'; m.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px';
   m.innerHTML=`<div style="background:var(--paper,#fff);color:var(--ink,#222);border-radius:14px;padding:20px;max-width:440px;width:100%;font-size:16px;box-shadow:0 10px 30px rgba(0,0,0,.3)">
@@ -3072,7 +3073,9 @@ function maskName(n){
   if(/^[A-Za-z]/.test(t)) return t[0] + '**';
   return t;
 }
+const ALL_SPK='전체위원';
 function speakerLines(orig){
+  if(orig===ALL_SPK) return [ALL_SPK];
   const s = state.speakers[orig] || {role:'(직위 없음)', name:orig};
   const role = s.role==='(직위 없음)' ? '' : s.role;
   let name = (s.name||'').trim();
@@ -3172,7 +3175,7 @@ function renderUtts(){
         <button class="icon-btn" title="발언 삭제">✕</button>
       </div>`;
     const sel = row.querySelector('select');
-    sel.innerHTML = Object.keys(state.speakers).map(o=>`<option value="${escHtml(o)}" ${o===it.spk?'selected':''}>${escHtml(speakerInline(o))}</option>`).join('');
+    sel.innerHTML = Object.keys(state.speakers).filter(o=>o!==ALL_SPK).concat([ALL_SPK]).map(o=>`<option value="${escHtml(o)}" ${o===it.spk?'selected':''}>${escHtml(speakerInline(o))}</option>`).join('');
     sel.addEventListener('change', e=>{ it.spk=e.target.value; renderSpeakers(); refresh(); });
     const ta = row.querySelector('textarea');
     ta.addEventListener('input', e=>{ it.text=e.target.value; autoGrow(ta); refresh(); });
