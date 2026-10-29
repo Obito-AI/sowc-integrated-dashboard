@@ -420,6 +420,8 @@ table.agenda td.ctl button { border: 1px solid var(--line); background: #fff; bo
 .steps { display: flex; border: 1.5px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); margin-bottom: 12px; }
 .steps .st { flex: 1; padding: 7px 6px; text-align: center; border-right: 1px solid var(--line); }
 .steps .st:last-child { border-right: none; }
+.steps .st { cursor: pointer; }
+@media (max-width:640px){ .steps{display:grid;grid-template-columns:1fr 1fr} .steps .st{border-bottom:1px solid var(--line);min-width:0} .steps .st .nm{font-size:14px;word-break:keep-all} #tab-minutes h2{word-break:keep-all;overflow-wrap:anywhere} #tab-minutes .work-col,#tab-minutes .preview-col,#tab-minutes .minutes-wrap>*{min-width:0;max-width:100%} }
 .steps .st .no { font-size: 10.5px; color: var(--ink-soft); letter-spacing: .08em; font-weight: 650; }
 .steps .st .nm { font-weight: 700; font-size: 13px; margin-top: 2px; }
 .steps .st.done .nm::after { content: " ✓"; color: var(--ok); font-weight: 800; }
@@ -1534,9 +1536,10 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
   <div class="minutes-wrap">
     <div class="work-col">
       <div class="steps" id="steps">
-        <div class="st active" data-st="1"><div class="no">STEP 01</div><div class="nm">원고 불러오기</div></div>
-        <div class="st" data-st="2"><div class="no">STEP 02</div><div class="nm">화자·발언 정리</div></div>
-        <div class="st" data-st="3"><div class="no">STEP 03</div><div class="nm">표지·결재·안건 정보</div></div>
+        <div class="st active" data-st="1" data-go="card0"><div class="no">STEP 01</div><div class="nm">안건 심의결과</div></div>
+        <div class="st" data-st="2" data-go="card1"><div class="no">STEP 02</div><div class="nm">회의록 작성</div></div>
+        <div class="st" data-st="3" data-go="card3"><div class="no">STEP 03</div><div class="nm">표지·결재란</div></div>
+        <div class="st" data-st="4" data-go="card2"><div class="no">STEP 04</div><div class="nm">화자·발언 정리</div></div>
       </div>
 
       <div class="card restore-note" id="restoreBar" style="display:none; border-color:var(--seal); gap:.7rem; align-items:center; flex-wrap:wrap">
@@ -1546,9 +1549,31 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
         <button class="btn sm ghost" id="btnDiscard">새로 시작</button>
       </div>
 
+      <!-- STEP 1: 안건 심의결과 -->
+      <section class="card" id="card0">
+        <h2><span class="tag">1</span> 안건 심의결과 <span class="tag">회의록·표지·결재 문서 자동 반영</span></h2>
+        <div class="btn-row" style="margin:0 0 8px">
+          <button type="button" class="btn primary" id="btnLoadAdopted" style="font-size:15px;min-height:44px">📥 취합 보드 채택 안건 불러오기</button>
+          <span class="hint" id="adoptedInfo"></span>
+        </div>
+        <div style="margin-top:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+            <label style="font-size:15px; font-weight:750">안건별 심의결과 (가결·수정가결·부결 등)</label>
+            <button class="btn sm" onclick="window.SOWC_APP.openVoteCalcModal()">⚖ 가부동수 · 정족수 판정 계산기</button>
+          </div>
+          <div class="btn-row" style="margin:6px 0">
+            <button class="btn sm primary" id="btnSummarize" disabled>✨ 심의자료로 심의내용 AI 자동 요약</button>
+            <span class="hint" id="sumProgress">심의자료를 올리고 API 키를 입력하면 활성화됩니다</span>
+          </div>
+          <div id="agendaList" style="margin-top:6px"></div>
+          <button class="btn sm ghost" id="btnAddAgenda">＋ 안건 추가</button>
+        </div>
+
+      </section>
+
       <!-- STEP 1 -->
       <section class="card" id="card1">
-        <h2><span class="tag">1</span> 회의 녹음 전사 원고 불러오기 (.md / .txt)</h2>
+        <h2><span class="tag">2</span> 회의록 작성 · 녹음 전사 원고 불러오기 (.md / .txt)</h2>
         <div class="drop" id="drop">
           <strong>클로바노트 · 다글로 전사 파일(.md / .txt)을 끌어다 놓거나</strong> 클릭해서 선택하세요.
           <input type="file" id="fileInput" accept=".md,.txt,.markdown" hidden>
@@ -1563,9 +1588,55 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
         <p class="hint" id="applyHint" style="margin-top:6px"></p>
       </section>
 
+      <!-- STEP 3 -->
+      <section class="card" id="card3">
+        <h2><span class="tag">3</span> 표지 · 결재란 정보 <span class="tag warn">2026 부위원장 대행 결재 지원</span></h2>
+        <div class="drop" id="simuiDrop" style="padding:10px; margin-bottom:10px">
+          <strong>심의자료(.hwpx)를 끌어다 놓으면</strong> 학년도·회차·일시·장소·안건·제안자 및 AI 요약 본문을 자동으로 채웁니다.
+          <input type="file" id="simuiInput" accept=".hwpx" hidden>
+        </div>
+        <div class="meta-grid">
+          <div class="f full"><label>문서 제목 (비우면 자동 생성 · 우측 미리보기에서 직접 클릭 수정 가능)</label>
+            <input id="mTitle" placeholder="예: 2026학년도 제4회 인천가원초등학교운영위원회(임시회)"></div>
+          <div class="f"><label>학년도</label><input id="mYear" placeholder="2026학년도" value="2026학년도"></div>
+          <div class="f"><label>회차 / 구분</label>
+            <div style="display:flex; gap:6px">
+              <input id="mRound" placeholder="4" value="4" style="width:70px" inputmode="numeric">
+              <select id="mKind"><option>임시회</option><option>정기회</option></select>
+            </div>
+          </div>
+          <div class="f"><label>학교명</label><input id="mSchool" value="인천가원초등학교" placeholder="인천가원초등학교"></div>
+          <div class="f"><label>회의 주재·결재권자 (Q&A 6-05)</label>
+            <select id="mPresiderRole" title="위원장 불참으로 부위원장이 회의를 진행한 경우 부위원장이 결재합니다">
+              <option value="위원장">위원장 결재 (학교장 + 위원장)</option>
+              <option value="부위원장">부위원장 직무대행 결재 (학교장 + 부위원장)</option>
+            </select>
+          </div>
+          <div class="f"><label>일시</label><input id="mDate" value="2026년 11월 17일 16:00" placeholder="2026년 11월 17일 16:00"></div>
+          <div class="f"><label>장소</label><input id="mPlace" value="본관 2층 교장실" placeholder="교장실"></div>
+          <div class="f full"><label>참석 위원 (쉼표 구분 → 총원 자동 표기 · [5. 운영위원 현황] 출석 체크 연동)</label>
+            <input id="mAttend" value="권효정, 최정민, 강지혜, 김보람, 문해영, 변정현, 성유진, 주선숙, 박승현, 홍자영, 고미선, 이상민, 서지영, 윤지영"></div>
+          <div class="f full"><label>방청인(참관인) 참석 현황 (회의록 필수 기재사항)</label>
+            <input id="mObserverInfo" placeholder="예: 학부모 2명, 교직원 1명 (없으면 비워두세요)"></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label style="font-size:12.5px; font-weight:750; color:var(--ink-soft)">보고 사항 (없으면 비워두세요)</label>
+          <div id="reportList" style="margin-top:6px"></div>
+          <button class="btn sm ghost" id="btnAddReport">＋ 보고 추가</button>
+        </div>
+
+        <div class="meta-grid" style="margin-top:12px">
+          <div class="f"><label>기록자 직위</label><input id="mWriterRole" value="행정실장"></div>
+          <div class="f"><label>기록자 성명</label><input id="mWriterName" value="이호철"></div>
+          <div class="f"><label>제안년월일 (처리상황표)</label><input id="mProposedDate" value="2026년 11월 10일"></div>
+          <div class="f"><label>이송년월일 (처리상황표)</label><input id="mSentDate" value="2026년 11월 18일"></div>
+        </div>
+      </section>
+
       <!-- STEP 2 -->
       <section class="card" id="card2" hidden>
-        <h2><span class="tag">2</span> 화자 이름·직위 매핑 및 발언 검토</h2>
+        <h2><span class="tag">4</span> 화자 이름·직위 매핑 및 발언 검토</h2>
         <table class="spk-table">
           <thead><tr><th>원문 화자</th><th style="width:110px">직위</th><th>성명 (생략 가능)</th><th style="width:65px">발언 수</th></tr></thead>
           <tbody id="spkBody"></tbody>
@@ -1607,64 +1678,6 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
         <div class="utt-list" id="uttList"></div>
       </section>
 
-      <!-- STEP 3 -->
-      <section class="card" id="card3">
-        <h2><span class="tag">3</span> 표지 · 결재란 · 안건 심의결과 정보 <span class="tag warn">2026 부위원장 대행 결재 지원</span></h2>
-        <div class="drop" id="simuiDrop" style="padding:10px; margin-bottom:10px">
-          <strong>심의자료(.hwpx)를 끌어다 놓으면</strong> 학년도·회차·일시·장소·안건·제안자 및 AI 요약 본문을 자동으로 채웁니다.
-          <input type="file" id="simuiInput" accept=".hwpx" hidden>
-        </div>
-        <div class="meta-grid">
-          <div class="f full"><label>문서 제목 (비우면 자동 생성 · 우측 미리보기에서 직접 클릭 수정 가능)</label>
-            <input id="mTitle" placeholder="예: 2026학년도 제4회 인천가원초등학교운영위원회(임시회)"></div>
-          <div class="f"><label>학년도</label><input id="mYear" placeholder="2026학년도" value="2026학년도"></div>
-          <div class="f"><label>회차 / 구분</label>
-            <div style="display:flex; gap:6px">
-              <input id="mRound" placeholder="4" value="4" style="width:70px" inputmode="numeric">
-              <select id="mKind"><option>임시회</option><option>정기회</option></select>
-            </div>
-          </div>
-          <div class="f"><label>학교명</label><input id="mSchool" value="인천가원초등학교" placeholder="인천가원초등학교"></div>
-          <div class="f"><label>회의 주재·결재권자 (Q&A 6-05)</label>
-            <select id="mPresiderRole" title="위원장 불참으로 부위원장이 회의를 진행한 경우 부위원장이 결재합니다">
-              <option value="위원장">위원장 결재 (학교장 + 위원장)</option>
-              <option value="부위원장">부위원장 직무대행 결재 (학교장 + 부위원장)</option>
-            </select>
-          </div>
-          <div class="f"><label>일시</label><input id="mDate" value="2026년 11월 17일 16:00" placeholder="2026년 11월 17일 16:00"></div>
-          <div class="f"><label>장소</label><input id="mPlace" value="본관 2층 교장실" placeholder="교장실"></div>
-          <div class="f full"><label>참석 위원 (쉼표 구분 → 총원 자동 표기 · [5. 운영위원 현황] 출석 체크 연동)</label>
-            <input id="mAttend" value="권효정, 최정민, 강지혜, 김보람, 문해영, 변정현, 성유진, 주선숙, 박승현, 홍자영, 고미선, 이상민, 서지영, 윤지영"></div>
-          <div class="f full"><label>방청인(참관인) 참석 현황 (회의록 필수 기재사항)</label>
-            <input id="mObserverInfo" placeholder="예: 학부모 2명, 교직원 1명 (없으면 비워두세요)"></div>
-        </div>
-
-        <div style="margin-top:12px">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-            <label style="font-size:12.5px; font-weight:750; color:var(--ink-soft)">심의 안건 및 회의결과 요약</label>
-            <button class="btn sm" onclick="window.SOWC_APP.openVoteCalcModal()">⚖ 가부동수 · 정족수 판정 계산기</button>
-          </div>
-          <div class="btn-row" style="margin:6px 0">
-            <button class="btn sm primary" id="btnSummarize" disabled>✨ 심의자료로 심의내용 AI 자동 요약</button>
-            <span class="hint" id="sumProgress">심의자료를 올리고 API 키를 입력하면 활성화됩니다</span>
-          </div>
-          <div id="agendaList" style="margin-top:6px"></div>
-          <button class="btn sm ghost" id="btnAddAgenda">＋ 안건 추가</button>
-        </div>
-
-        <div style="margin-top:10px">
-          <label style="font-size:12.5px; font-weight:750; color:var(--ink-soft)">보고 사항 (없으면 비워두세요)</label>
-          <div id="reportList" style="margin-top:6px"></div>
-          <button class="btn sm ghost" id="btnAddReport">＋ 보고 추가</button>
-        </div>
-
-        <div class="meta-grid" style="margin-top:12px">
-          <div class="f"><label>기록자 직위</label><input id="mWriterRole" value="행정실장"></div>
-          <div class="f"><label>기록자 성명</label><input id="mWriterName" value="이호철"></div>
-          <div class="f"><label>제안년월일 (처리상황표)</label><input id="mProposedDate" value="2026년 11월 10일"></div>
-          <div class="f"><label>이송년월일 (처리상황표)</label><input id="mSentDate" value="2026년 11월 18일"></div>
-        </div>
-      </section>
     </div>
 
     <!-- Right Preview Column -->
@@ -2799,7 +2812,7 @@ const $ = id => document.getElementById(id);
 const ROLES = ['위원장','부위원장','위원','간사','교장','교감','행정실장','제안자','참고인','(직위 없음)'];
 
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2200); }
-function setStep(n){ document.querySelectorAll('#tab-minutes .steps .st').forEach(el=>{ const s=+el.dataset.st; el.classList.toggle('active',s===n); el.classList.toggle('done',s<n); }); }
+function setStep(n){ n=({1:2,2:4,3:3})[n]||n; document.querySelectorAll('#tab-minutes .steps .st').forEach(el=>{ const s=+el.dataset.st; el.classList.toggle('active',s===n); el.classList.toggle('done',s<n); }); }
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ============ 1단계 ============ */
@@ -3193,7 +3206,7 @@ function docTitle(){
 }
 function buildData(){
   const names = $('mAttend').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
-  const agendaLines = state.agendas.map(a=>a.name.trim()).filter(Boolean).map((a,i)=>`${i+1}. ${a}`);
+  const agendaLines = state.agendas.filter(a=>(a.name||'').trim()).map((a,i)=>`${i+1}. ${a.name.trim()}${a.result?` — 심의결과: ${String(a.result).replace(/\s+/g,'')}`:''}`);
   state.reports.map(r=>r.trim()).filter(Boolean).forEach((r,i)=>agendaLines.push(`보고${i+1}. ${r}`));
 
   const items = [];
@@ -3779,7 +3792,7 @@ function tryOfferRestore(){
     const raw = localStorage.getItem(DRAFT_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
-    if(draftHasContent(d)) offerRestore(d);
+    if(draftHasContent(d)){ applyDraft(d); $('restoreBar').style.display='none'; $('saveInd').textContent='이전 작업 자동 복원됨 · '+draftSummary(d); }
   }catch(e){}
 }
 
@@ -6032,10 +6045,7 @@ window.SOWC_PREP = {
       window.SOWC_PREP.refresh();
       window.SOWC_PREP.syncToMinutes();
     }
-    if (window.SOWC_MINUTES && (!window.SOWC_MINUTES.state.utts || !window.SOWC_MINUTES.state.utts.length)) {
-      const sampleBtn = document.getElementById('btnSample');
-      if (sampleBtn) sampleBtn.click();
-    }
+    // 예시 원고 자동 삽입 제거: 저장된 회의록을 덮어쓰던 원인
   }
 
   if (document.readyState === 'loading') {
@@ -7579,6 +7589,7 @@ window.SOWC_PREP = {
     try{ A.syncScheduleEverywhere&&A.syncScheduleEverywhere('round-select',{round:s.round,kind:s.kind,date:s.isoDate,time:t,silent:true}); }catch(e){}
     if(window.SOWC_PREP){ window.SOWC_PREP.state.dt=`${fmt(s.isoDate)} ${t}`; try{window.SOWC_PREP.fillFields();window.SOWC_PREP.refresh();}catch(e){} }
     refreshMsg();
+    try{ loadAdopted(false); }catch(e){}
     renderBar();
     if(!opts.silent && A.toast) A.toast(`제${s.round}회(${s.kind}) 자료로 전 탭을 바꿨습니다.${isPast(s)?' 지난 회차도 고치고 저장할 수 있습니다.':''}`);
   }
@@ -7639,6 +7650,23 @@ window.SOWC_PREP = {
     A.toast&&A.toast(`제${s.round}회를 삭제했습니다.`);
   }
 
+
+  function adoptedAgendas(){ return ((st()&&st().intakes)||[]).filter(x=>x.kind==='심의안건'&&x.checked&&String(x.title||'').trim()); }
+  function loadAdopted(force){
+    const M=window.SOWC_MINUTES; if(!M||!M.state) return;
+    const list=adoptedAgendas(); const info=$('adoptedInfo');
+    if(!list.length){ if(info) info.textContent='선택한 회차의 취합 보드에 채택(체크)된 심의안건이 없습니다.'; if(force&&APP().toast) APP().toast('취합 보드에서 채택된 심의안건이 없습니다.'); return; }
+    const cur=M.state.agendas||[]; const blank=!cur.some(a=>String((a&&a.name)||'').trim());
+    if(!force&&!blank) { if(info) info.textContent=`취합 보드 채택 안건 ${list.length}건 (불러오기 버튼으로 다시 채울 수 있음)`; return; }
+    M.state.agendas=list.map(x=>{ const ex=cur.find(a=>a&&a.name===x.title)||{}; return {name:x.title, proposer:ex.proposer||x.proposer||'', result:ex.result||'원안 가결', content:ex.content||''}; });
+    try{ M.renderAgendas(); M.refresh(true); }catch(e){}
+    if(info) info.textContent=`취합 보드 채택 안건 ${list.length}건을 불러왔습니다. 결과를 고르면 회의록·표지·결재 문서에 바로 반영됩니다.`;
+    if(force&&APP().toast) APP().toast(`채택 안건 ${list.length}건을 심의결과 목록으로 불러왔습니다.`);
+  }
+  function wireMinutes(){
+    const b=$('btnLoadAdopted'); if(b&&!b._w){ b._w=1; b.onclick=()=>loadAdopted(true); }
+    document.querySelectorAll('#tab-minutes .steps .st[data-go]').forEach(el=>{ if(el._w) return; el._w=1; el.onclick=()=>{ const c=$(el.dataset.go); if(c){ c.hidden=false; c.scrollIntoView({behavior:'smooth',block:'start'}); } }; });
+  }
   function renderBarInfo(){
     const s=sess(activeRound()); if(!s) return;
     const info=$('rbInfo'); if(!info) return;
@@ -7706,7 +7734,7 @@ window.SOWC_PREP = {
   let tmr; function autoSnap(){ clearTimeout(tmr); tmr=setTimeout(()=>{ if(store.activeRound!=null) snapshot(store.activeRound); },600); }
   document.addEventListener('input',e=>{ if(e.target.closest&&e.target.closest('#roundBar')) return; autoSnap(); },true);
   document.addEventListener('change',e=>{ if(e.target.closest&&e.target.closest('#roundBar')) return; autoSnap(); },true);
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#intakeTable,[onclick*=addIntakeItem]')) autoSnap(); },true);
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#intakeTable,[onclick*=addIntakeItem]')){ autoSnap(); setTimeout(()=>{ try{loadAdopted(false);}catch(_){} },50); } },true);
   window.addEventListener('pagehide',()=>{ if(store.activeRound!=null) snapshot(store.activeRound); });
 
   function init(){
@@ -7718,6 +7746,7 @@ window.SOWC_PREP = {
       A.loadSessionPreset=function(r){ if(!A._rbInApply){ A._rbInApply=true; try{ applyRound(r); } finally{ A._rbInApply=false; } return; } return orig.apply(this,arguments); };
     }
     purgeSamples();
+    wireMinutes();
     const r=activeRound();
     A._rbInApply=true; try{ applyRound(r,{noSnapshot:true,silent:true,init:true}); } finally{ A._rbInApply=false; } setTimeout(()=>{ const tEl=$('toast'); if(tEl) tEl.classList.remove('on','show'); },30);
   }
