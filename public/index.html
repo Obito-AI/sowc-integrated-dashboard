@@ -1110,6 +1110,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
 .cm-char-badge.ok { background: var(--accent-soft); color: var(--ok); }
 .cm-char-badge.lms { background: var(--warn-soft); color: var(--warn); }
 .cm-char-badge.warn { background: var(--seal-soft); color: var(--danger); }
+#agendaList .ag-copy:disabled{opacity:.45;cursor:not-allowed}@media (max-width:640px){#agendaList .agenda-item{flex-wrap:wrap}#agendaList .ag-name{flex:1 1 100%}}
 </style>
 </head>
 <body>
@@ -3186,11 +3187,15 @@ function renderAgendas(){
     row.innerHTML = `<div class="agenda-item">
       <span class="no">${i+1}.</span>
       <input class="ag-name" value="${escHtml(a.name)}" placeholder="2026학년도 ○○○ 계획(안)">
+      <button type="button" class="ag-copy" title="안건 제목 복사" style="flex:0 0 auto;font-size:15px;font-weight:700;padding:.5rem .9rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap" ${a.name.trim()?'':'disabled'}>📋 제목 복사</button>
       <input class="ag-prop" value="${escHtml(a.proposer)}" placeholder="발의자" style="flex:0 0 88px">
       <select class="ag-res" style="flex:0 0 96px; border:1px solid var(--line); border-radius:7px; padding:.35rem .25rem; font-size:.83rem">${AG_RESULTS.map(o=>`<option ${o===a.result?'selected':''}>${o}</option>`).join('')}</select>
       <button class="icon-btn">✕</button></div>
       <textarea class="ag-content" rows="2" placeholder="회의결과용 심의내용 요약 — 예) ▣ 주요 내용 / - 항목별 정리">${escHtml(a.content)}</textarea>`;
-    row.querySelector('.ag-name').addEventListener('input', e=>{ a.name=e.target.value; updateSummarizeBtn(); refresh(); });
+    row.querySelector('.ag-name').addEventListener('input', e=>{ a.name=e.target.value; const cb=row.querySelector('.ag-copy'); cb.disabled=!a.name.trim(); updateSummarizeBtn(); refresh(); });
+    row.querySelector('.ag-copy').addEventListener('click', async e=>{ const btn=e.currentTarget; const t=(a.name||'').trim(); if(!t) return; let ok=false;
+      try{ await navigator.clipboard.writeText(t); ok=true; }catch(err){ try{ const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); ok=document.execCommand('copy'); ta.remove(); }catch(e2){} }
+      btn.textContent= ok?'✅ 복사됨':'복사 실패'; clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.textContent='📋 제목 복사'; },1500); });
     row.querySelector('.ag-prop').addEventListener('input', e=>{ a.proposer=e.target.value; refresh(); });
     row.querySelector('.ag-res').addEventListener('change', e=>{ a.result=e.target.value; refresh(); });
     row.querySelector('.ag-content').addEventListener('input', e=>{ a.content=e.target.value; refresh(); });
@@ -5761,6 +5766,7 @@ window.SOWC_PREP = {
     { id: 'm_sts', cat: '회의 정리·보고', title: '[공식 표 서식 ③] 안건 처리상황표 (제안·의결·이송 대장)', desc: '제안년월일·의결주문·학교장 이송년월일 관리 대장', action: () => { APP.switchTab('tab-minutes'); document.getElementById('btnStatus').click(); } },
     { id: 'm_60', cat: '회의 정리·보고', title: '[시행령 제60조] 심의결과 변경집행 · 긴급 선시행 보고서', desc: '심의결과와 다르게 시행하거나 긴급 사유로 선시행 시 교육청·학운위 보고서', action: () => APP.downloadChangeReportHwpx() }
   ];
+  window.SOWC_STD_TEMPLATES = STD_TEMPLATES;
 
   async function downloadGawonCoverDraftHwpx() {
     if (!window.SOWC_PREP) return;
@@ -6028,7 +6034,8 @@ window.SOWC_PREP = {
     else if (hit) html = hit.ans;
     else html = '내장 Q&A에서 이 질문과 맞는 항목을 찾지 못했어요. 아래 추천 질문 버튼을 눌러 보거나, 시교육청 업무편람 원문을 확인해 주세요.';
     const ctx = ['[선택된 회차 데이터]', _sowcStrip(sched) || '(없음)'].concat(scored.slice(0, 4).map((x, i) => `[내장 Q&A ${i + 1}] ${_sowcStrip(x.item.ans)}`)).join('\n\n');
-    return { html, ctx, hasKb: scored.length > 0 };
+    const kbCtx = scored.slice(0, 3).map((x, i) => `[내장 Q&A ${i + 1}] ${_sowcStrip(x.item.ans)}`).join('\n\n');
+    return { html, ctx, kbCtx, kbHtml: hit ? hit.ans : '', best, hasKb: scored.length > 0 };
   }
 
   async function askChat(q) {
@@ -6036,8 +6043,17 @@ window.SOWC_PREP = {
     if (!text) return;
     toggleChat(true);
     appendChatMsg('user', _sowcMd(text));
+    if (window.SOWC_CONTACTS && window.SOWC_CONTACTS.isQ(text)) { const el = appendChatMsg('bot', ''); window.SOWC_CONTACTS.handle(text, el); return; }
     const local = _sowcLocalAnswer(text);
-    const botEl = appendChatMsg('bot', '<span style="opacity:.75">⏳ AI가 내장 Q&A와 선택된 회차 자료를 보고 답을 쓰는 중…</span>');
+    let ds = null; try { ds = window.SOWC_SEARCH ? window.SOWC_SEARCH.answer(text) : null; } catch (e) { ds = null; }
+    if (ds && (ds.handled || ds.html)) {
+      const kbFirst = local.kbHtml && local.best >= 6;
+      if (kbFirst) local.html = local.kbHtml + (ds.html ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px">🔎 대시보드 관련 자료</summary><div style="margin-top:4px">${ds.html}</div></details>` : '');
+      else local.html = `<div style="font-size:12px;font-weight:700;opacity:.8;margin-bottom:4px">🔎 대시보드 검색 결과</div>${ds.html}` + (local.kbHtml && local.best >= 3 ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px">📚 내장 Q&A 관련 항목</summary><div style="margin-top:4px">${local.kbHtml}</div></details>` : '');
+    }
+    local.srcHtml = ds && ds.hits && ds.hits.length ? ds.html : '';
+    local.ctx = ['[대시보드 검색 결과 — 실제 화면·저장 데이터. 여기에 없으면 \'대시보드에 아직 입력된 자료가 없음\'이라고 답할 것]', (ds && ds.ctx) || '(검색 결과 없음)', (ds && ds.parsed && ds.parsed.round ? `[질문 해석] 제${ds.parsed.round}회 · ${ds.parsed.intent || '일반'}` : '')].concat(local.kbCtx ? [local.kbCtx] : []).filter(Boolean).join('\n\n');
+    const botEl = appendChatMsg('bot', '<span style="opacity:.75">⏳ AI가 대시보드 자료와 내장 Q&A를 검색해 답을 쓰는 중…</span>');
     try {
       const ctl = new AbortController();
       const timer = setTimeout(() => ctl.abort(), 25000);
@@ -6050,12 +6066,12 @@ window.SOWC_PREP = {
       clearTimeout(timer);
       const data = res.ok ? await res.json() : null;
       if (data && data.ok && data.answer) {
-        botEl.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">🤖 AI 답변 · 내장 Q&A·회차 자료 근거</div>${_sowcMd(data.answer)}<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px">📚 내장 자료 원문 보기</summary><div style="margin-top:4px">${local.html}</div></details>`;
+        botEl.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">🤖 AI 답변 · 대시보드 자료·내장 Q&A 근거</div>${_sowcMd(data.answer)}<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px">📚 근거 자료 원문 보기</summary><div style="margin-top:4px">${local.html}</div></details>`;
         const box = document.getElementById('chatMsgs'); if (box) box.scrollTop = box.scrollHeight;
         return;
       }
     } catch (e) { /* 네트워크 오류 시 내장 답변으로 */ }
-    botEl.innerHTML = `<div style="font-size:12px;opacity:.75;margin-bottom:4px">📚 내장 자료 답변 (AI 연결 안 됨)</div>${local.html}`;
+    botEl.innerHTML = `<div style="font-size:12px;opacity:.75;margin-bottom:4px">📚 대시보드·내장 자료 검색 답변 (AI 연결 대기)</div>${local.html}`;
   }
 
   function sendChatInput() {
@@ -7817,5 +7833,104 @@ window.SOWC_PREP = {
 })();
 </script>
 
+<script>
+/* SOWC 대시보드 내부 검색 색인 + 대화 맥락 (전화번호·이메일 제외) */
+(function(){
+  const TAB={'tab-calendar':'1. 학운위 캘린더·회차','tab-formation':'2. 구성 프로세스','tab-prep':'3. 사전준비','tab-minutes':'4. 회의록','tab-roster':'5. 운영위원 현황','tab-templates':'6. 관련 서식','tab-msg-gen':'7. 안내 메시지'};
+  const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]);
+  const scrub=s=>String(s==null?'':s).replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[이메일 제외]').replace(/0\d{1,2}[-.\s)]?[\d*]{3,4}[-.\s]?[\d*]{4}/g,'[전화번호 제외]');
+  const A=()=>window.SOWC_APP||{}; const S=()=>A().appState||{};
+  const J=k=>{try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}};
+  const W='일월화수목금토';
+  function shift(iso,n){const [y,m,d]=iso.split('-').map(Number);const x=new Date(y,m-1,d+n);return `${x.getFullYear()}. ${x.getMonth()+1}. ${x.getDate()}.(${W[x.getDay()]})`;}
+  const timeOf=s=>s.time||((String(s.date||'').match(/\d{1,2}:\d{2}/)||[])[0])||'';
+  const agTitle=a=>typeof a==='string'?a:(a&&(a.title||a.name||a.agenda))||'';
+  const activeRound=()=>{const st=(window.SOWC_ROUNDS&&SOWC_ROUNDS.store&&SOWC_ROUNDS.store())||J('sowc_round_store_v1')||{};const a=(S().sessions||[]).find(x=>x.active);return Number(st.activeRound||(a&&a.round)||0)||null;};
+  function roundStore(){const s=J('sowc_round_store_v1')||{};return s.rounds||{};}
+  function build(){
+    const docs=[]; const add=(tab,round,kind,title,text)=>{text=scrub(text);if(!String(text).trim())return;docs.push({tab,round:round==null?null:Number(round),kind,title:scrub(title),text});};
+    const act=activeRound(), rs=roundStore();
+    (S().sessions||[]).forEach(s=>{const t=timeOf(s);const lines=[`회의: ${s.isoDate?shift(s.isoDate,0):s.date||''} ${t}`.trim()];
+      if(s.isoDate)lines.push(`안건취합 공지(D-21): ${shift(s.isoDate,-21)}`,`안건취합 마감(D-14): ${shift(s.isoDate,-14)}`,`안건 발송마감(당일포함 8일 전·D-7): ${shift(s.isoDate,-7)}`);
+      lines.push(`진행 상태: ${s.status||'-'}`,`안건 수: ${s.agendas||0}건`);if(s.summary)lines.push(`안건 요약: ${s.summary}`);
+      add('tab-calendar',s.round,'schedule',`제${s.round}회 ${s.kind||''} 일정·상태`,lines.join('\n'));});
+    const intakesBy={};Object.keys(rs).forEach(r=>{if(Array.isArray(rs[r].intakes))intakesBy[r]=rs[r].intakes;});if(act)intakesBy[act]=S().intakes||[];
+    Object.keys(intakesBy).forEach(r=>{const l=intakesBy[r].map(x=>`${x.kind||''} · ${x.dept||''} · ${x.title||''} (${x.status||''}${x.checked?', 상정 체크':''})`);if(l.length)add('tab-calendar',r,'intake',`제${r}회 안건 취합 보드`,l.join('\n'));});
+    const prepBy={};Object.keys(rs).forEach(r=>{if(rs[r].prep)prepBy[r]=rs[r].prep;});const P=window.SOWC_PREP&&SOWC_PREP.state;if(P)prepBy[P.round||act]=P;
+    Object.keys(prepBy).forEach(r=>{const p=prepBy[r];const ag=(p.agendas||[]).map(agTitle).filter(Boolean);const l=[];if(p.dt)l.push(`일시: ${p.dt}`);if(p.place)l.push(`장소: ${p.place}`);if(p.noticeNo)l.push(`공고번호: ${p.noticeNo}`);if(ag.length)l.push('안건: '+ag.map((x,i)=>`${i+1}. ${x}`).join(' / '));if(p.agendaSummary)l.push('안건 요약: '+p.agendaSummary);if(ag.length||p.agendaSummary)add('tab-prep',r,'prep',`제${r}회 사전준비 (안건·개최 안내)`,l.join('\n'));else add('tab-prep',r,'prepbase',`제${r}회 사전준비 기본정보`,l.join('\n'));});
+    const M=(window.SOWC_MINUTES&&SOWC_MINUTES.state)||J('sowc_minutes_draft_v4_notion_cal');
+    if(M){const f=M.fields||{};const r=f.mRound||act;const ag=(M.agendas||[]).filter(a=>(a.name||'').trim());
+      if(ag.length)add('tab-minutes',r,'minutes',`제${r}회 회의록 안건·심의결과`,ag.map((a,i)=>`${i+1}. ${a.name} → ${a.result||'결과 미입력'}${a.content?'\n   '+String(a.content).replace(/\s+/g,' ').slice(0,160):''}`).join('\n'));
+      const words={};(M.items||[]).forEach(it=>String(it.text||'').split(/[\s,.·()「」'"!?]+/).forEach(w=>{if(w.length>=2&&!/^(그리고|그래서|있습니다|합니다|하겠습니다|입니다|저희|이번|네)$/.test(w))words[w]=(words[w]||0)+1;}));
+      const kw=Object.entries(words).sort((a,b)=>b[1]-a[1]).slice(0,25).map(x=>x[0]);if(kw.length)add('tab-minutes',r,'speech',`제${r}회 회의록 발언 키워드`,kw.join(', '));}
+    [['roster12','제12기(2026)'],['roster11','제11기(2025)']].forEach(([k,lab])=>{const ro=S()[k]||[];if(ro.length)add('tab-roster',null,'roster',`${lab} 운영위원 현황`,ro.map(m=>`${m.name||''} · ${m.type||''} · ${m.role||''}`).join('\n'));});
+    (S().formationStages||[]).forEach(st=>add('tab-formation',null,'formation',`구성 ${st.stage} ${st.title||''}`,`${st.period||''}\n`+(st.tasks||[]).map(t=>`${t.done?'✔':'□'} [${t.role||''}] ${t.text||''}`).join('\n')));
+    (window.SOWC_STD_TEMPLATES||[]).forEach(t=>add('tab-templates',null,'template',t.title,`${t.cat} · ${t.desc||''}`));
+    const sv=J('sowc_msg_saved_v1')||{};['staff','comm'].forEach(k=>(sv[k]||[]).slice(0,10).forEach((it,i)=>{const r=it.state&&it.state.round;add('tab-msg-gen',r,'msg',`메시지 생성기 저장본 (${k==='staff'?'교직원 안내':'위원 문자·메일'}) ${String(it.at||'').slice(0,10)}`,`${it.subject||''}\n${String(it.body||'').slice(0,300)}`);}));
+    return docs;
+  }
+  const INT=[['result',/심의\s*결과|의결|가결|부결|결과/],['schedule',/일정|언제|날짜|시간|몇\s*시|마감|공지|발송|d-?\d+/i],['agenda',/안건/],['template',/서식|양식|템플릿/],['roster',/위원장|부위원장|위원\b|위원은|명단|누구|간사|당연직/],['intake',/취합/],['minutes',/회의록|발언/],['formation',/구성\s*프로세스|선출|선관위|구성\s*절차/],['msg',/문자|메일|메시지|안내문/],['prep',/사전준비|개최\s*안내|공고/]];
+  let last={intent:null,round:null};
+  function parse(q){const t=String(q);let round=null;const m2=t.match(/말고\s*(?:제\s*)?(\d+)\s*회/)||t.match(/(?:제\s*)?(\d+)\s*회(?!\s*말고)(?!.*말고)/);if(m2)round=Number(m2[1]);
+    let intent=null;for(const [k,re] of INT){if(re.test(t)){intent=k;break;}}
+    const follow=/^(그럼|그러면|그\s*회차|말고|그건|그거|이번엔|다음은)|말고|는\?*$|은\?*$/.test(t.trim())||t.replace(/\s/g,'').length<=8;
+    if(!intent&&follow&&last.intent)intent=(round!=null&&['roster','template','formation'].includes(last.intent))?(last.rIntent||'schedule'):last.intent;
+    if(round==null&&(/그\s*회차|거기|그때/.test(t)||intent))round=intent&&['roster','template','formation'].includes(intent)?null:(last.round||null);
+    return {intent,round,follow};}
+  function score(d,q){const toks=String(q).replace(/[?!.,]/g,' ').split(/\s+/).filter(w=>w.length>=2).map(w=>w.replace(/(은|는|이|가|을|를|야|요|해|어디|있어)$/,'')).filter(w=>w.length>=2);const h=(d.title+' '+d.text);return toks.reduce((a,w)=>a+(h.includes(w)?w.length:0),0);}
+  function srcBtn(d){return `<div style="margin-top:6px;font-size:12.5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="opacity:.8">📍 출처: ${esc(TAB[d.tab]||d.tab)}${d.round?` · 제${d.round}회`:''}</span><button type="button" class="btn sm" style="padding:2px 10px" onclick="window.SOWC_SEARCH.open('${d.tab}',${d.round||'null'})">열기</button></div>`;}
+  const card=d=>`<b>[${esc(d.title)}]</b><br>${esc(d.text).replace(/\n/g,'<br>')}${srcBtn(d)}`;
+  const NONE='대시보드에 아직 입력된 자료가 없음';
+  function answer(q){
+    const docs=build();const p=parse(q);const R=p.round;const inR=d=>R==null||d.round==null||d.round===R;let hits=[],note='';
+    const by=(...kinds)=>docs.filter(d=>kinds.includes(d.kind)&&(R==null||d.round===R));
+    switch(p.intent){
+      case 'schedule': hits=by('schedule');if(R==null){const a=activeRound();hits=docs.filter(d=>d.kind==='schedule'&&d.round===a);}break;
+      case 'agenda': hits=by('minutes','prep','intake');if(!hits.length)hits=by('schedule');break;
+      case 'result': hits=by('minutes');if(!hits.length){const s=by('schedule');if(s.length){note=`회의록 탭에 제${R||''}회 안건별 심의결과는 ${NONE}. 회차 정보에 저장된 내용만 보여드립니다.`;hits=s;}}break;
+      case 'minutes': hits=by('minutes','speech');{const t=docs.filter(d=>d.kind==='template'&&/회의록/.test(d.title));if(/서식|양식/.test(q)||!hits.length)hits=t.concat(hits);}break;
+      case 'template': hits=docs.filter(d=>d.kind==='template').map(d=>({d,s:score(d,q)})).sort((a,b)=>b.s-a.s).filter((x,i)=>x.s>0||i<0).map(x=>x.d).slice(0,5);if(/회의록/.test(q))hits=hits.filter(d=>/본회의\s*회의록/.test(d.title)).concat(hits.filter(d=>/회의록/.test(d.title)&&!/본회의\s*회의록/.test(d.title))).concat(hits.filter(d=>!/회의록/.test(d.title))).slice(0,5);break;
+      case 'roster':{const ro=docs.filter(d=>d.kind==='roster');const role=(String(q).match(/부위원장|위원장|간사|교장|교감/)||[])[0];if(role&&ro.length){const lines=[];ro.forEach(d=>d.text.split('\n').forEach(l=>{const rr=l.split(' · ')[2]||'';if(role==='위원장'?(/위원장/.test(rr)&&!/부위원장/.test(rr)):rr.includes(role))lines.push(`${d.title.replace(' 운영위원 현황','')}: ${l}`);}));if(lines.length)return fin({tab:'tab-roster',round:null,title:`운영위원 현황 · ${role}`,text:lines.join('\n')},docs,q,p);}hits=ro;break;}
+      case 'intake': hits=by('intake');break; case 'formation': hits=docs.filter(d=>d.kind==='formation').map(d=>({d,s:score(d,q)})).sort((a,b)=>b.s-a.s).map(x=>x.d).slice(0,3);break;
+      case 'msg': hits=by('msg');break; case 'prep': hits=by('prep','prepbase');break;
+    }
+    if(!p.intent){hits=docs.filter(inR).map(d=>({d,s:score(d,q)})).filter(x=>x.s>=2).sort((a,b)=>b.s-a.s).map(x=>x.d).slice(0,3);}
+    last={intent:p.intent||last.intent,round:R!=null?R:last.round,rIntent:(p.intent&&!['roster','template','formation'].includes(p.intent))?p.intent:last.rIntent};
+    if(!hits.length){return {handled:!!p.intent,html:p.intent?`<b>${R?`제${R}회 `:''}${NONE}</b><br><span style="opacity:.8">해당 탭에 자료를 입력하면 여기서 바로 찾아 드립니다. 없는 내용은 만들어 답하지 않습니다.</span>`:'',ctx:`[대시보드 검색] ${R?`제${R}회 `:''}${NONE}`,query:q,parsed:p};}
+    return {handled:!!p.intent,html:(note?`<div style="opacity:.85;margin-bottom:4px">${esc(note)}</div>`:'')+hits.slice(0,4).map(card).join('<hr style="border:none;border-top:1px dashed var(--line,#ccc);margin:8px 0">'),ctx:hits.slice(0,5).map((d,i)=>`[대시보드 ${i+1}] (${TAB[d.tab]}${d.round?` · 제${d.round}회`:''}) ${d.title}\n${d.text}`).join('\n\n'),query:q,parsed:p,hits};
+  }
+  function fin(d,docs,q,p){last={intent:p.intent,round:p.round!=null?p.round:last.round,rIntent:last.rIntent};return {handled:true,html:card(d),ctx:`[대시보드 1] (${TAB[d.tab]}) ${d.title}\n${d.text}`,query:q,parsed:p,hits:[d]};}
+  function open(tab,round){try{if(round&&String(round)!==String(activeRound())&&window.SOWC_ROUNDS&&SOWC_ROUNDS.applyRound)SOWC_ROUNDS.applyRound(round);}catch(e){}
+    try{A().switchTab(tab);}catch(e){} if(window.innerWidth<760){try{A().toggleChat(false);}catch(e){}} const el=document.getElementById(tab);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+  window.SOWC_SEARCH={build,answer,open,parse,reset(){last={intent:null,round:null};}};
+})();
+</script>
+<script>
+/* 위원 연락처 — PIN 잠금 (연락처 값은 서버가 응답할 때만 화면에 표시, 저장·AI 전송 없음) */
+(function(){
+  const EP='https://clawworks-dashboard.vercel.app/api/sowc/contacts', TK='sowc_contact_token';
+  const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]);
+  const isQ=q=>/연락처|전화\s*번호|전화|휴대폰|핸드폰|폰\s*번호|이메일|메일\s*주소/.test(q)&&!/문자\s*생성|안내\s*메시지/.test(q);
+  const tok=()=>{try{const t=JSON.parse(sessionStorage.getItem(TK)||'null');return t&&t.exp>Date.now()?t.token:null;}catch(e){return null;}};
+  async function post(b){const r=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});let j={};try{j=await r.json();}catch(e){}j._status=r.status;return j;}
+  function table(rows){const tel=p=>p?`<a class="ct-val" href="tel:${esc(p.replace(/[^\d+]/g,''))}">${esc(p)}</a>`:'-';const ml=e=>e?`<a class="ct-val" href="mailto:${esc(e)}">${esc(e)}</a>`:'-';
+    if(rows.length===1){const r=rows[0];return `<b>[${esc(r.name)} · ${esc(r.type)} ${esc(r.role)}]</b><br>• 전화: ${tel(r.phone)}<br>• 이메일: ${ml(r.email)}`;}
+    return `<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:12.5px;width:100%"><tr><th style="text-align:left;padding:3px 6px">이름</th><th style="text-align:left;padding:3px 6px">구분·직책</th><th style="text-align:left;padding:3px 6px">전화</th><th style="text-align:left;padding:3px 6px">이메일</th></tr>${rows.map(r=>`<tr style="border-top:1px solid var(--line,#ddd)"><td style="padding:3px 6px;white-space:nowrap">${esc(r.name)}</td><td style="padding:3px 6px">${esc(r.type)} ${esc(r.role)}</td><td style="padding:3px 6px;white-space:nowrap">${tel(r.phone)}</td><td style="padding:3px 6px">${ml(r.email)}</td></tr>`).join('')}</table></div>`;}
+  const foot='<div style="margin-top:6px;font-size:12px;opacity:.75">🔒 PIN 확인 후 서버에서 직접 받은 연락처입니다 (AI로 보내지 않음, 브라우저에 저장하지 않음). 출처: 노션 제12기 위원 명단</div>';
+  async function fetchRows(el,q){el.innerHTML='<span style="opacity:.75">⏳ 연락처를 불러오는 중…</span>';
+    try{const j=await post({token:tok(),q});if(j._status===401){sessionStorage.removeItem(TK);return pinForm(el,q,'인증이 만료되었습니다. PIN을 다시 입력해 주세요.');}
+      if(!j.ok){el.innerHTML=j.error==='no_data'?'대시보드에 아직 입력된 자료가 없음 — 서버에서 위원 연락처 명단을 읽지 못했습니다.':'연락처 서버 연결 대기 — 잠시 후 다시 시도해 주세요.';return;}
+      el.innerHTML=table(j.rows||[])+foot;}catch(e){el.innerHTML='연락처 서버 연결 대기 — 잠시 후 다시 시도해 주세요.';}}
+  function pinForm(el,q,msg){const id='ctpin'+Date.now();
+    el.innerHTML=`<b>🔒 위원 연락처는 PIN 확인 후 보여드립니다.</b>${msg?`<div style="color:var(--danger,#c33);font-size:12.5px;margin-top:4px">${esc(msg)}</div>`:''}<form style="display:flex;gap:6px;margin-top:6px" onsubmit="event.preventDefault();window.SOWC_CONTACTS.submit('${id}');"><input id="${id}" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" style="flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line,#ccc);border-radius:8px"><button class="btn sm primary" type="submit">확인</button></form>`;
+    pend[id]={el,q};setTimeout(()=>{const i=document.getElementById(id);if(i)i.focus();},50);}
+  const pend={};
+  async function submit(id){const p=pend[id];const inp=document.getElementById(id);if(!p||!inp||!inp.value)return;const pin=inp.value;inp.value='';
+    try{const j=await post({pin});if(j.ok&&j.token){sessionStorage.setItem(TK,JSON.stringify({token:j.token,exp:j.exp}));delete pend[id];return fetchRows(p.el,p.q);}
+      pinForm(p.el,p.q,j.error==='locked'?`연속 실패로 잠시 잠겼습니다. 약 ${Math.ceil((j.retryAfterSec||900)/60)}분 뒤 다시 시도하세요.`:j.error==='pin_not_configured'?'서버 PIN이 아직 설정되지 않았습니다.':`PIN이 맞지 않습니다.${j.remaining!=null?` (남은 시도 ${j.remaining}회)`:''}`);}catch(e){pinForm(p.el,p.q,'연락처 서버 연결 대기');}}
+  function handle(q,el){if(tok())fetchRows(el,q);else pinForm(el,q);}
+  window.SOWC_CONTACTS={isQ,handle,submit};
+})();
+</script>
 </body>
 </html>
