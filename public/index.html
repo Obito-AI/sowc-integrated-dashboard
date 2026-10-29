@@ -7356,7 +7356,7 @@ window.SOWC_PREP = {
       const round = String(opts.round || _val('ddayRound') || staffState.round || '4');
       const kind = opts.kind || _val('ddayKind') || staffState.kind || '임시회';
       const date = opts.date || _val('ddayMeetDate') || staffState.meetDate || '2026-11-24';
-      const time = opts.time || staffState.meetTime || '15:00';
+      const time = opts.time || _val('ddayMeetTime') || staffState.meetTime || '15:00';
       const place = opts.place || staffState.meetPlace || '본관 2층 교장실';
 
       // 핵심 규칙:
@@ -7384,7 +7384,7 @@ window.SOWC_PREP = {
           const rNum = Number(round);
           st.events = st.events.filter(e => {
             if (e.roundTag === rNum) return false;
-            if (new RegExp(`^제${round}회\s*(안건취합|추경|심의안건|법정공고|소집공고|안건발송|임시회|정기회)`).test(e.title || '')) return false;
+            if (new RegExp(`^제${round}회\\s*(안건취합|추경|심의안건|법정공고|소집공고|안건발송|임시회|정기회)`).test(e.title || '')) return false;
             if (/^D-(7|10|14|21)\s/.test(e.title || '')) return false;
             return true;
           });
@@ -7508,5 +7508,225 @@ window.SOWC_PREP = {
 })();
 
 </script>
+<!-- ═══ SOWC 회차 선택 · 과거 회차 수정 · 회의 시간 (v2.3) ═══ -->
+<style>
+#roundBar{margin:14px 0 16px;padding:16px 18px;border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:14px;background:var(--paper-soft);color:var(--ink)}
+#roundBar .rb-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+#roundBar label{display:block;font-size:15px;font-weight:700;margin-bottom:6px}
+#roundBar select,#roundBar input,#roundBar textarea{font-size:17px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper,#fff);color:var(--ink);min-height:48px;box-sizing:border-box}
+#roundBar #rbSelect{min-width:300px;font-weight:700}
+#roundBar .rb-btn{font-size:16px;font-weight:700;min-height:48px;padding:10px 18px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+#roundBar .rb-btn.ghost{background:transparent;color:var(--accent)}
+#roundBar .rb-btn.warn{border-color:#a0524a;color:#a0524a;background:transparent}
+#roundBar .rb-step{font-size:14px;font-weight:800;color:var(--accent);margin:14px 0 8px}
+#roundBar .rb-hint{font-size:15px;opacity:.8;margin-top:8px}
+#roundBar details summary{font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
+#roundBar .rb-past{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;margin-left:6px}
+#rbNewBox{display:none;margin-top:10px;padding:12px;border:1px dashed var(--accent);border-radius:10px}
+</style>
+<script>
+(function(){
+  const KEY='sowc_round_store_v1';
+  const $=id=>document.getElementById(id);
+  const APP=()=>window.SOWC_APP||{};
+  const st=()=>APP().appState;
+  let store={activeRound:null,rounds:{}};
+  try{const r=JSON.parse(localStorage.getItem(KEY)||'null'); if(r&&r.rounds) store=r;}catch(e){}
+  function persist(){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} }
+  const clone=o=>JSON.parse(JSON.stringify(o||{}));
+  const sessions=()=>((st()&&st().sessions)||[]).slice().sort((a,b)=>a.round-b.round);
+  const sess=r=>(st().sessions||[]).find(s=>String(s.round)===String(r));
+  const timeOf=s=>{ if(!s) return '15:00'; if(s.time) return s.time; const m=String(s.date||'').match(/(\d{1,2}):(\d{2})/); return m?m[1].padStart(2,'0')+':'+m[2]:'15:00'; };
+  const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+  const isPast=s=>s&&s.isoDate&&s.isoDate<today();
+  function activeRound(){ const a=(st().sessions||[]).find(s=>s.active); return store.activeRound||(a&&a.round)||4; }
+
+  function snapshot(r){
+    if(r==null) return;
+    const ms=APP().msgState||{};
+    store.rounds[r]={
+      prep: window.SOWC_PREP?clone(window.SOWC_PREP.state):null,
+      staff: clone(ms.staff), comm: clone(ms.comm),
+      savedAt: new Date().toISOString()
+    };
+    persist();
+  }
+  function restoreRound(r){
+    const snap=store.rounds[r]; if(!snap) return false;
+    const ms=APP().msgState||{};
+    if(snap.prep&&window.SOWC_PREP){ Object.assign(window.SOWC_PREP.state,snap.prep); try{window.SOWC_PREP.fillFields();window.SOWC_PREP.renderAgendas();window.SOWC_PREP.refresh();window.SOWC_PREP.syncToMinutes();}catch(e){} }
+    if(snap.staff&&ms.staff) Object.assign(ms.staff,snap.staff);
+    if(snap.comm&&ms.comm) Object.assign(ms.comm,snap.comm);
+    try{ const A=APP(); A.syncFromDashboardToGenerators&&0; }catch(e){}
+    return true;
+  }
+  function refreshMsg(){
+    const A=APP();
+    try{ document.querySelectorAll('#tab-msg-gen input,#tab-msg-gen select,#tab-msg-gen textarea'); }catch(e){}
+    try{ if(A.onOpenMsgGenTab) A.onOpenMsgGenTab(); }catch(e){}
+  }
+
+  function applyRound(r, opts){
+    opts=opts||{};
+    const s=sess(r); if(!s) return;
+    if(!opts.noSnapshot && store.activeRound!=null && String(store.activeRound)!==String(r)) snapshot(store.activeRound);
+    store.activeRound=Number(r); persist();
+    const t=timeOf(s); s.time=t;
+    const ms=APP().msgState||{};
+    if(ms.staff) ms.staff.meetTime=t;
+    if(ms.comm) ms.comm.meetingTime=t;
+    if($('ddayMeetTime')) $('ddayMeetTime').value=t;
+    const A=APP();
+    const hadSnap=!!store.rounds[r];
+    if(A.loadSessionPreset){ const was=A._rbInApply; A._rbInApply=true; try{ A.loadSessionPreset(Number(r)); } finally{ A._rbInApply=was; } }
+    if(hadSnap){ restoreRound(r); if(ms.staff) ms.staff.meetTime=t; if(ms.comm) ms.comm.meetingTime=t; }
+    try{ A.syncScheduleEverywhere&&A.syncScheduleEverywhere('round-select',{round:s.round,kind:s.kind,date:s.isoDate,time:t,silent:true}); }catch(e){}
+    if(window.SOWC_PREP){ window.SOWC_PREP.state.dt=`${fmt(s.isoDate)} ${t}`; try{window.SOWC_PREP.fillFields();window.SOWC_PREP.refresh();}catch(e){} }
+    refreshMsg();
+    renderBar();
+    if(!opts.silent && A.toast) A.toast(`제${s.round}회(${s.kind}) 자료로 전 탭을 바꿨습니다.${isPast(s)?' 지난 회차도 고치고 저장할 수 있습니다.':''}`);
+  }
+  function fmt(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-').map(Number); const w='일월화수목금토'[new Date(y,m-1,d).getDay()]; return `${y}. ${m}. ${d}.(${w})`; }
+
+  function setTime(v){
+    if(!/^\d{2}:\d{2}$/.test(v||'')) return;
+    const s=sess(activeRound()); if(!s) return;
+    s.time=v; s.date=`${fmt(s.isoDate)} ${v}`;
+    const ms=APP().msgState||{};
+    if(ms.staff){ ms.staff.meetTime=v; ms.staff._manual=false; }
+    if(ms.comm){ ms.comm.meetingTime=v; ms.comm._manual=false; }
+    ['ddayMeetTime','rbTime','stf_meetTime','cm_meetingTime'].forEach(id=>{ if($(id)&&$(id).value!==v) $(id).value=v; });
+    try{ APP().syncScheduleEverywhere('round-time',{round:s.round,kind:s.kind,date:s.isoDate,time:v,silent:true}); }catch(e){}
+    if(window.SOWC_PREP){ window.SOWC_PREP.state.dt=`${fmt(s.isoDate)} ${v}`; try{window.SOWC_PREP.fillFields();window.SOWC_PREP.refresh();}catch(e){} }
+    snapshot(s.round); renderBarInfo();
+  }
+
+  function saveRoundEdits(){
+    const s=sess(activeRound()); if(!s) return;
+    const date=$('rbDate').value, time=$('rbTime').value;
+    s.kind=$('rbKind').value; s.status=$('rbStatus').value.trim()||s.status;
+    s.summary=$('rbSummary').value; const ag=parseInt($('rbAgendas').value,10); if(!isNaN(ag)) s.agendas=ag;
+    if(date) s.isoDate=date;
+    s.time=time||timeOf(s); s.date=`${fmt(s.isoDate)} ${s.time}`;
+    const A=APP();
+    try{ A.saveMasterState&&A.saveMasterState(); }catch(e){}
+    applyRound(s.round,{noSnapshot:true,silent:true});
+    setTime(s.time);
+    snapshot(s.round);
+    try{ A.renderSessionPipeline&&A.renderSessionPipeline(); A.saveMasterState&&A.saveMasterState(); }catch(e){}
+    A.toast&&A.toast(`제${s.round}회 정보를 저장했습니다. 일정은 D-21·D-14·D-7로 다시 맞췄습니다.`);
+  }
+
+  function addRound(){
+    const date=$('rbNewDate').value, time=$('rbNewTime').value||'15:00', kind=$('rbNewKind').value;
+    if(!date){ APP().toast&&APP().toast('새 회차의 회의 날짜를 먼저 고르세요.'); return; }
+    if(store.activeRound!=null) snapshot(store.activeRound);
+    const list=st().sessions; const n=Math.max(0,...list.map(s=>Number(s.round)||0))+1;
+    list.forEach(s=>s.active=false);
+    list.push({round:n,kind,isoDate:date,time,date:`${fmt(date)} ${time}`,notice:'',agendas:0,status:'계획',days:1,summary:'',userAdded:true,active:true});
+    delete store.rounds[n];
+    $('rbNewBox').style.display='none';
+    try{ APP().saveMasterState(); }catch(e){}
+    applyRound(n,{noSnapshot:true,silent:true});
+    APP().toast&&APP().toast(`제${n}회(${kind})를 추가했습니다. D-21·D-14·D-7 일정이 자동으로 들어갔습니다.`);
+  }
+  function deleteRound(){
+    const s=sess(activeRound()); if(!s||!s.userAdded) return;
+    if(!confirm(`직접 추가한 제${s.round}회를 삭제할까요?`)) return;
+    const A=APP(), S=st();
+    S.sessions=S.sessions.filter(x=>x!==s);
+    S.events=(S.events||[]).filter(e=>e.roundTag!==Number(s.round));
+    delete store.rounds[s.round]; store.activeRound=null; persist();
+    try{A.saveMasterState();}catch(e){}
+    const last=sessions().filter(x=>!isPast(x))[0]||sessions().slice(-1)[0];
+    if(last) applyRound(last.round,{noSnapshot:true,silent:true});
+    A.toast&&A.toast(`제${s.round}회를 삭제했습니다.`);
+  }
+
+  function renderBarInfo(){
+    const s=sess(activeRound()); if(!s) return;
+    const info=$('rbInfo'); if(!info) return;
+    const d=s.isoDate; const sh=n=>{const [y,m,dd]=d.split('-').map(Number);const x=new Date(y,m-1,dd+n);return `${x.getMonth()+1}. ${x.getDate()}.`;};
+    info.innerHTML=`📅 회의 <b>${fmt(d)} ${timeOf(s)}</b> · 안건취합공지 <b>${sh(-21)}</b>(D-21) · 안건취합 <b>${sh(-14)}</b>(D-14) · 안건 발송마감 <b>${sh(-7)}</b>(D-7)`;
+  }
+  function renderBar(){
+    const bar=$('roundBar'); if(!bar||!st()) return;
+    const cur=activeRound(); const s=sess(cur);
+    $('rbSelect').innerHTML=sessions().map(x=>`<option value="${x.round}" ${String(x.round)===String(cur)?'selected':''}>제${x.round}회 ${x.kind} · ${fmt(x.isoDate)}${isPast(x)?' (지난 회차)':''}</option>`).join('');
+    if(!s) return;
+    $('rbTime').value=timeOf(s); $('rbDate').value=s.isoDate||''; $('rbKind').value=s.kind||'임시회';
+    $('rbStatus').value=s.status||''; $('rbSummary').value=s.summary||''; $('rbAgendas').value=s.agendas||0;
+    $('rbPast').style.display=isPast(s)?'inline-block':'none';
+    $('rbDel').style.display=s.userAdded?'inline-block':'none';
+    renderBarInfo();
+  }
+
+  function mount(){
+    const nav=$('mainTabNav'); if(!nav||$('roundBar')) return;
+    const div=document.createElement('div'); div.id='roundBar';
+    div.innerHTML=`
+      <div class="rb-step">① 회차 고르기 → ② 시간 정하기 → ③ 고치고 저장</div>
+      <div class="rb-row">
+        <div><label for="rbSelect">학운위 회차 <span class="rb-past" id="rbPast">지난 회차 · 수정 가능</span></label><select id="rbSelect"></select></div>
+        <div><label for="rbTime">회의 시간</label><input type="time" id="rbTime" step="600"></div>
+        <button type="button" class="rb-btn" id="rbSaveBtn">💾 이 회차 저장</button>
+        <button type="button" class="rb-btn ghost" id="rbNewBtn">＋ 새 회차 추가</button>
+      </div>
+      <div class="rb-hint" id="rbInfo"></div>
+      <div id="rbNewBox"><div class="rb-row">
+        <div><label for="rbNewDate">새 회차 회의 날짜</label><input type="date" id="rbNewDate"></div>
+        <div><label for="rbNewTime">시간</label><input type="time" id="rbNewTime" value="15:00"></div>
+        <div><label for="rbNewKind">구분</label><select id="rbNewKind"><option>임시회</option><option>정기회</option></select></div>
+        <button type="button" class="rb-btn" id="rbNewOk">추가하기</button>
+      </div></div>
+      <details><summary>✏️ 이 회차 정보 고치기 (날짜·구분·상태·요약)</summary>
+        <div class="rb-row" style="margin-top:10px">
+          <div><label for="rbDate">회의 날짜</label><input type="date" id="rbDate"></div>
+          <div><label for="rbKind">구분</label><select id="rbKind"><option>임시회</option><option>정기회</option></select></div>
+          <div><label for="rbAgendas">안건 수</label><input type="number" id="rbAgendas" min="0" max="99" style="width:100px"></div>
+          <div style="flex:1;min-width:220px"><label for="rbStatus">진행 상태</label><input type="text" id="rbStatus" style="width:100%"></div>
+        </div>
+        <div style="margin-top:10px"><label for="rbSummary">회차 요약</label><textarea id="rbSummary" rows="2" style="width:100%"></textarea></div>
+        <div class="rb-row" style="margin-top:10px"><button type="button" class="rb-btn" id="rbSave2">💾 고친 내용 저장</button><button type="button" class="rb-btn warn" id="rbDel">🗑 직접 추가한 회차 삭제</button></div>
+      </details>`;
+    nav.parentNode.insertBefore(div,nav.nextSibling);
+    $('rbSelect').onchange=e=>applyRound(e.target.value);
+    $('rbTime').onchange=e=>setTime(e.target.value);
+    $('rbSaveBtn').onclick=saveRoundEdits; $('rbSave2').onclick=saveRoundEdits;
+    $('rbNewBtn').onclick=()=>{ const b=$('rbNewBox'); b.style.display=b.style.display==='block'?'none':'block'; };
+    $('rbNewOk').onclick=addRound; $('rbDel').onclick=deleteRound;
+    // 탭1 회의 시간 입력
+    const md=$('ddayMeetDate');
+    if(md&&!$('ddayMeetTime')){
+      const f=document.createElement('div'); f.className='field';
+      f.innerHTML='<label>회의 시간</label><input type="time" id="ddayMeetTime" value="15:00">';
+      md.closest('.field').after(f);
+      $('ddayMeetTime').addEventListener('change',e=>setTime(e.target.value));
+    }
+    ['stf_meetTime','cm_meetingTime'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',e=>setTime(e.target.value)); });
+  }
+
+  // 편집 자동 저장(현재 회차 슬롯)
+  let tmr; function autoSnap(){ clearTimeout(tmr); tmr=setTimeout(()=>{ if(store.activeRound!=null) snapshot(store.activeRound); },600); }
+  document.addEventListener('input',e=>{ if(e.target.closest&&e.target.closest('#roundBar')) return; autoSnap(); },true);
+  document.addEventListener('change',e=>{ if(e.target.closest&&e.target.closest('#roundBar')) return; autoSnap(); },true);
+  window.addEventListener('pagehide',()=>{ if(store.activeRound!=null) snapshot(store.activeRound); });
+
+  function init(){
+    if(!st()) return setTimeout(init,50);
+    mount();
+    const A=APP();
+    if(A.loadSessionPreset && !A._rbWrapped){
+      const orig=A.loadSessionPreset; A._rbWrapped=true;
+      A.loadSessionPreset=function(r){ if(!A._rbInApply){ A._rbInApply=true; try{ applyRound(r); } finally{ A._rbInApply=false; } return; } return orig.apply(this,arguments); };
+    }
+    const r=activeRound();
+    A._rbInApply=true; try{ applyRound(r,{noSnapshot:true,silent:true}); } finally{ A._rbInApply=false; }
+  }
+  window.SOWC_ROUNDS={applyRound,setTime,addRound,snapshot,store:()=>store};
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0)); else setTimeout(init,0);
+})();
+</script>
+
 </body>
 </html>
