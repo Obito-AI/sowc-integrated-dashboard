@@ -3585,33 +3585,73 @@ function updateSummarizeBtn(){
 }
 /* ── 규칙 기반 본문 추출 요약 (원문에 있는 문장만 사용) ── */
 function _normT(x){ return String(x||'').replace(/\s+/g,'').replace(/[()（）\[\]「」『』·ㆍ.,]/g,''); }
-function extractiveSummaries(simuiText, targets){
+function _normTitle(x){ return String(x||'').replace(/^\s*(?:제\s*\d+\s*(?:호|항|번)\s*(?:의안|안건)?|안건\s*\d+|의안\s*\d+|\d+\s*[.)]|[①-⑳])\s*/,'').replace(/\(\s*안\s*\)|\[\s*안\s*\]/g,'').replace(/[\s()（）\[\]「」『』<>·ㆍ.,:：\-–—'"]/g,'').replace(/안$/,''); }
+function _bigrams(t){ const m=new Map(); for(let i=0;i<t.length-1;i++){ const g=t.slice(i,i+2); m.set(g,(m.get(g)||0)+1); } return m; }
+function _dice(a,b){ if(!a||!b) return 0; if(a===b) return 1; const A=_bigrams(a),B=_bigrams(b); let inter=0,na=0,nb=0; A.forEach(v=>na+=v); B.forEach(v=>nb+=v); A.forEach((v,g)=>{ if(B.has(g)) inter+=Math.min(v,B.get(g)); }); let d=na+nb?2*inter/(na+nb):0; const sh=a.length<b.length?a:b, lo=a.length<b.length?b:a; if(sh.length>=8 && lo.includes(sh)) d=Math.max(d,0.92); return d; }
+/* 심의자료 본문에서 안건별 구간 찾기: 제목 유사도(순서 무관) + 목차/본문 구분 */
+function locateAgendaSections(simuiText, targets){
   const lines = String(simuiText||'').split('\n').map(t=>t.replace(/\s+/g,' ').trim()).filter(Boolean);
-  const keys = targets.map(a=>_normT(a.name.trim()).slice(0,14));
-  const hitIdx = (k, from)=>{ for(let i=from;i<lines.length;i++){ if(k && _normT(lines[i]).includes(k)) return i; } return -1; };
-  // 각 안건의 마지막 등장 위치를 본문 섹션 시작으로 간주 (첫 등장은 보통 안건 목록 표)
-  const starts = keys.map(k=>{ let last=-1, i=hitIdx(k,0); while(i>=0){ last=i; i=hitIdx(k,i+1); } return last; });
-  const HEAD = /^(?:[0-9]+\.|[가-하]\.|[ⅠⅡⅢⅣⅤ]+\.|□|■|▣|○|◦)?\s*(제안\s*이유|제안\s*사유|추진\s*목적|목적|근거|주요\s*내용|추진\s*내용|세부\s*내용|운영\s*계획|소요\s*예산|예산|기대\s*효과|기간|대상)/;
-  const MONEY = /\d[\d,]*\s*(?:천원|만원|원)/;
-  return targets.map((a,k)=>{
-    let st = starts[k]; if(st<0) return '';
-    const nexts = starts.filter((x,j)=>j!==k && x>st); let en = nexts.length? Math.min(...nexts) : Math.min(lines.length, st+80);
-    if(en-st<2) return '';
-    const sec = lines.slice(st+1, en).filter(t=>t.length>=4 && t.length<=300);
+  const keys = targets.map(a=>_normTitle(a.name));
+  const TH = 0.62;
+  const cands = targets.map(()=>[]);
+  for(let i=0;i<lines.length;i++){
+    let w=''; 
+    for(let j=0;j<3 && i+j<lines.length;j++){
+      w += lines[i+j]; const nw=_normTitle(w); if(nw.length>90) break;
+      keys.forEach((k,ai)=>{ const sc=_dice(k,nw); if(sc>=TH) cands[ai].push({i, end:i+j, sc}); });
+    }
+  }
+  // 같은 위치 중복 제거(최고점만)
+  cands.forEach((arr,ai)=>{ const best={}; arr.forEach(c=>{ if(!best[c.i]||best[c.i].sc<c.sc) best[c.i]=c; }); cands[ai]=Object.values(best).sort((x,y)=>x.i-y.i); });
+  const allPos = [].concat(...cands.map(a=>a.map(c=>c.i))).sort((x,y)=>x-y);
+  const nextPos = i=>{ const n=allPos.find(x=>x>i+2); return n==null?lines.length:n; };
+  // 각 안건 후보 중 뒤따르는 본문이 가장 긴 위치 = 본문 시작 (목차 줄은 다음 안건 제목이 곧바로 이어짐)
+  const pick = cands.map(arr=>arr.map(c=>({...c, len: nextPos(c.end)-c.end})).filter(c=>c.len>=3).sort((x,y)=>(y.len*y.sc)-(x.len*x.sc)));
+  const used=new Set(); const chosen=targets.map(()=>null);
+  const order = targets.map((_,ai)=>ai).sort((x,y)=>((pick[y][0]||{}).sc||0)-((pick[x][0]||{}).sc||0));
+  order.forEach(ai=>{ const c=pick[ai].find(c=>!used.has(c.i)); if(c){ chosen[ai]=c; used.add(c.i); } });
+  const starts = chosen.filter(Boolean).map(c=>c.i).sort((x,y)=>x-y);
+  return { lines, sections: targets.map((a,ai)=>{
+    const c=chosen[ai];
+    if(!c){ const best=Math.max(0,...cands[ai].map(x=>x.sc)); return { ok:false, reason: cands[ai].length ? '본문 구간을 찾지 못함(목차에만 있음)' : '심의자료에 같은 제목이 없음'+(best?'':''), score:best }; }
+    const nx = starts.find(x=>x>c.i); const en = nx==null ? Math.min(lines.length, c.end+250) : nx;
+    return { ok:true, st:c.end+1, en, score:c.sc, title: lines.slice(c.i,c.end+1).join(' ') };
+  }) };
+}
+function extractiveSummaries(simuiText, targets, withMeta){
+  const { lines, sections } = locateAgendaSections(simuiText, targets);
+  const HEAD = /^(?:[0-9]+\.|[가-하]\.|[ⅠⅡⅢⅣⅤ]+\.|□|■|▣|○|◦|\d+\))?\s*(제안\s*이유|제안\s*사유|추진\s*목적|목적|근거|주요\s*내용|주요\s*골자|추진\s*내용|세부\s*내용|선정\s*결과|운영\s*계획|소요\s*예산|예산\s*총괄|예산|기대\s*효과|편성\s*방향|세입\s*예산|세출\s*예산)(?=$|\s|[:：(])/;
+  const MONEY = /\d[\d,]{2,}\s*(?:천원|만원|원)?/;
+  const TOTAL = /^(합\s*계|총\s*계|총\s*액|예산\s*총액|세\s*입|세\s*출|세입\s*합?계|세출\s*합?계|계)$/;
+  const NUM = x=>/^[\d,\s△▲-]+(?:천원|원)?$/.test(x)&&/\d{2,}/.test(x);
+  const res = targets.map((a,k)=>{
+    const S = sections[k];
+    if(!S.ok) return { text:'', reason:S.reason };
+    const raw = lines.slice(S.st, S.en);
+    const sec = raw.filter(t=>t.length>=2 && t.length<=300);
     const groups = []; let cur = null;
     sec.forEach(t=>{
+      if(t.length<4) return;
       const m = t.match(HEAD);
-      if(m && t.length<=40){ cur = { h: m[1].replace(/\s+/g,' '), items: [] }; groups.push(cur); return; }
-      if(m && t.length>40){ cur = { h: m[1].replace(/\s+/g,' '), items: [] }; groups.push(cur); cur.items.push(t.replace(HEAD,'').replace(/^[\s:：-]+/,'')); return; }
-      if(cur && cur.items.length<4) cur.items.push(t);
+      if(m){ cur = { h: m[1].replace(/\s+/g,' '), items: [] }; groups.push(cur); const rest=t.replace(HEAD,'').replace(/^[\s:：\-]+/,''); if(rest.length>=4) cur.items.push(rest); return; }
+      if(cur && cur.items.length<4 && t.length>=8 && !NUM(t)) cur.items.push(t);
     });
-    const money = sec.filter(t=>MONEY.test(t)).slice(0,3);
+    // 표 중심(추경 등): 합계·총액 라벨 + 뒤따르는 금액 셀
+    const totals = [];
+    let cols = [];
+    const gi = raw.findIndex(x=>/^구\s*분$/.test(x)); if(gi>=0){ for(let j=gi+1;j<raw.length && j<gi+8;j++){ if(NUM(raw[j])||TOTAL.test(raw[j])) break; cols.push(raw[j].replace(/\s+/g,'')); } }
+    for(let i=0;i<raw.length && totals.length<4;i++){
+      if(TOTAL.test(raw[i])){ const nums=[]; for(let j=i+1;j<raw.length && nums.length<6 && NUM(raw[j]);j++) nums.push(raw[j].trim()); if(nums.length) totals.push(`${raw[i].replace(/\s+/g,'')}: ${nums.map((n,q)=>(cols.length===nums.length?cols[q]+' ':'')+n).join(' / ')}`); }
+    }
+    const moneyLines = sec.filter(t=>t.length>=6 && MONEY.test(t) && /[가-힣]/.test(t)).slice(0,3);
     const out = [];
     groups.filter(g=>g.items.length).slice(0,4).forEach(g=>{ out.push('▣ '+g.h); g.items.slice(0,3).forEach(t=>out.push(' - '+t.slice(0,140))); });
-    if(money.length && !out.some(l=>MONEY.test(l))){ out.push('▣ 금액'); money.forEach(t=>out.push(' - '+t.slice(0,140))); }
-    if(!out.length){ const body = sec.slice(0,4); if(!body.length) return ''; out.push('▣ 주요 내용'); body.forEach(t=>out.push(' - '+t.slice(0,140))); }
-    return out.join('\n');
+    if(totals.length){ out.push('▣ 예산 합계(표)'); totals.forEach(t=>out.push(' - '+t)); }
+    else if(moneyLines.length && !out.some(l=>MONEY.test(l))){ out.push('▣ 금액'); moneyLines.forEach(t=>out.push(' - '+t.slice(0,140))); }
+    if(!out.length){ const body = sec.filter(t=>t.length>=6).slice(0,4); if(!body.length) return { text:'', reason:'안건 구간은 찾았지만 본문 문장이 없음' }; out.push('▣ 주요 내용'); body.forEach(t=>out.push(' - '+t.slice(0,140))); }
+    return { text: out.join('\n'), reason:'', score:S.score };
   });
+  return withMeta ? res : res.map(r=>r.text);
 }
 async function serverSummaries(targets){
   const ctl = new AbortController(); const tm = setTimeout(()=>ctl.abort(), 45000);
@@ -3633,17 +3673,20 @@ $('btnSummarize').addEventListener('click', async ()=>{
   if(filledBefore.length){ overwrite = confirm(`이미 요약이 입력된 안건이 ${filledBefore.length}건 있습니다.\n[확인] 덮어쓰기 / [취소] 빈 칸만 채우기`); }
   summarizing = true; updateSummarizeBtn();
   $('sumProgress').textContent = `심의자료를 읽고 ${targets.length}건을 요약하는 중…`;
+  const meta = extractiveSummaries(state.simuiText, targets, true);
   let sums = await serverSummaries(targets), mode = 'AI 요약';
-  if(!sums){ sums = extractiveSummaries(state.simuiText, targets); mode = 'AI 연결 대기 · 본문 추출 요약'; }
-  let filled = 0, empty = 0;
+  if(sums){ sums = sums.map((v,k)=> meta[k].reason ? '' : v); }   // 본문에서 찾지 못한 안건에 AI가 다른 안건 내용을 붙이지 못하게
+  else { sums = meta.map(m=>m.text); mode = 'AI 연결 대기 · 본문 추출 요약'; }
+  let filled = 0; const emptyList = [];
   targets.forEach((a,k)=>{
     const cur = state.agendas[a.no-1]; const v = String(sums[k]||'').trim();
-    if(!v){ empty += 1; return; }
+    if(!v){ emptyList.push(`${a.no}번 「${a.name.trim().slice(0,24)}」: ${meta[k].reason || '요약할 문장을 찾지 못함'}`); if(overwrite && cur.content.trim()) cur.content = ''; return; }
     if(!cur.content.trim() || overwrite){ cur.content = v; filled += 1; }
   });
   renderAgendas(); refresh();
   summarizing = false; updateSummarizeBtn();
-  $('sumProgress').textContent = `${mode} · ${filled}건 채움` + (empty? ` · 본문에서 찾지 못한 ${empty}건은 비워 둠`:'');
+  $('sumProgress').innerHTML = `${escHtml(mode)} · ${filled}건 채움` + (emptyList.length? `<div style="margin-top:6px;padding:8px 10px;border:1px solid #e0a800;background:#fff8e1;border-radius:8px;color:#5a4500;font-size:14px;line-height:1.5"><b>비워 둔 안건 ${emptyList.length}건</b> (지어내지 않음)<br>${emptyList.map(escHtml).join('<br>')}</div>`:'');
+  const empty = emptyList.length;
   toast(`${mode}: ${filled}건 채움` + (filledBefore.length && !overwrite ? ` (기존 입력 ${filledBefore.length}건 보존)` : '') + (empty? `, ${empty}건은 본문에서 찾지 못했습니다` : ''));
 });
 
