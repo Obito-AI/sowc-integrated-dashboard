@@ -7687,9 +7687,21 @@ window.SOWC_PREP = {
       prep: window.SOWC_PREP?clone(window.SOWC_PREP.state):null,
       staff: clone(ms.staff), comm: clone(ms.comm),
       intakes: clone((st()&&st().intakes)||[]),
+      minutes: minutesSnap(),
       savedAt: new Date().toISOString()
     };
     persist();
+  }
+  // 회의록 STEP 05: 화자 매핑·발언 데이터 회차별 사본
+  function minutesSnap(){ const M=window.SOWC_MINUTES&&window.SOWC_MINUTES.state; if(!M) return null; const src=$('srcText'); return clone({src:src?src.value:'', rawUtts:M.rawUtts||[], items:M.items||[], speakers:M.speakers||{}}); }
+  function minutesApply(r){
+    const MM=window.SOWC_MINUTES; if(!MM||!MM.state) return;
+    const snap=store.rounds[r]&&store.rounds[r].minutes; const d=snap?clone(snap):{src:'',rawUtts:[],items:[],speakers:{}};
+    MM.state.rawUtts=d.rawUtts||[]; MM.state.items=d.items||[]; MM.state.speakers=d.speakers||{};
+    if($('srcText')) $('srcText').value=d.src||'';
+    const has=(MM.state.items||[]).length>0||Object.keys(MM.state.speakers).length>0;
+    if($('card2')) $('card2').hidden=!has;
+    try{ MM.renderSpeakers(); MM.renderUtts(); MM.refresh(); }catch(e){}
   }
   function restoreRound(r){
     const snap=store.rounds[r]; if(!snap) return false;
@@ -7722,6 +7734,7 @@ window.SOWC_PREP = {
     else if(store.rounds[r]&&Array.isArray(store.rounds[r].intakes)) st().intakes=clone(store.rounds[r].intakes);
     try{ A.renderIntake&&A.renderIntake(); }catch(e){}
     if(A.loadSessionPreset){ const was=A._rbInApply; A._rbInApply=true; const tEl=$('toast'); const keep=tEl&&tEl.className; try{ A.loadSessionPreset(Number(r)); } finally{ A._rbInApply=was; if(opts.silent&&tEl){ tEl.className=keep; } } }
+    if(!opts.init) minutesApply(r);
     if(hadSnap){ restoreRound(r); if(ms.staff) ms.staff.meetTime=t; if(ms.comm) ms.comm.meetingTime=t; }
     try{ A.syncScheduleEverywhere&&A.syncScheduleEverywhere('round-select',{round:s.round,kind:s.kind,date:s.isoDate,time:t,silent:true}); }catch(e){}
     if(window.SOWC_PREP){ window.SOWC_PREP.state.dt=`${fmt(s.isoDate)} ${t}`; try{window.SOWC_PREP.fillFields();window.SOWC_PREP.refresh();}catch(e){} }
