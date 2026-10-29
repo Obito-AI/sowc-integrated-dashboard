@@ -1269,7 +1269,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
       <h2>📥 부서별 안건 · 추경요청 공문 취합 보드 <span class="tag">사전준비 연동</span></h2>
       <table class="std-tbl" id="intakeTable">
         <thead>
-          <tr><th>구분</th><th>제출부서</th><th>안건명 / 추경요구 건명</th><th>발의/제안</th><th>상태</th><th>연동</th></tr>
+          <tr><th>구분</th><th>제출부서</th><th>안건명 / 추경요구 건명</th><th>발의/제안</th><th>상태</th><th>채택·이관</th></tr>
         </thead>
         <tbody id="intakeTbody"></tbody>
       </table>
@@ -4247,13 +4247,9 @@ let state = {
   dt:'2026. 11. 24.(화) 15:00', place:'본관 2층 교장실', noticeNo:'2026-48', noticeDate:'2026. 11. 17.', total:14,
   ref:'학생, 학부모, 교직원, 지역인사 방청 가능 (방청 신청서 사전 제출)',
   prevReport:'지난 10월 13일 제3회 임시회에서 심의한 2027학년도 검·인정 도서 선정(안) 외 1건은 모두 원안대로 가결되었으며, 회의결과와 회의록은 학교홈페이지에 공개되었습니다. 금번 제4회 임시회에서는 2026학년도 겨울방학 초등돌봄교실 운영 계획(안) 등 모두 3건의 안건 제출에 따라 회의를 갖게 되었습니다.',
-  agendaSummary:'2026학년도 겨울방학 초등돌봄교실 운영 계획(안) 외 2건',
+  agendaSummary:'',
   annaeBody:DEFAULT_ANNAE_BODY,
-  agendas:[
-    {title:'2026학년도 겨울방학 초등돌봄교실 및 방과후학교 운영 계획(안)', proposer:'늘봄지원실장'},
-    {title:'2027학년도 학교급식 식재료 구매 방법 및 업체 선정 기준(안)', proposer:'영양교사'},
-    {title:'2026학년도 인천가원초등학교회계 제4차 추가경정예산(안)', proposer:'행정실장'}
-  ],
+  agendas:[],
   sms:['','','',''], smsAuto:[true,true,true,true],
 };
 
@@ -4766,20 +4762,10 @@ window.SOWC_PREP = {
     { round: 1, kind: '임시회', isoDate: '2026-04-16', date: '2026. 4. 16.(목) 15:00', notice: '2026. 4. 9.', agendas: 15, status: '회의록 공개완료', days: 1, summary: '제12기 위원장·부위원장 선출, 급식·체육소위 구성, 학교교육과정 및 결산·1차 추경 등 15건 심의' },
     { round: 2, kind: '임시회', isoDate: '2026-07-15', date: '2026. 7. 15.(수) 14:00', notice: '2026. 7. 8.', agendas: 5, status: '회의록 공개완료', days: 1, summary: '유치원·초등 방과후·돌봄 여름방학 운영계획, 방과후·돌봄 소위원회 설치 및 2차 추경 등 5건 심의' },
     { round: 3, kind: '임시회', isoDate: '2026-10-13', date: '2026. 10. 13.(화) 15:00', notice: '2026. 10. 6.', agendas: 2, status: '회의록 공개완료', days: 1, summary: '2027학년도 검·인정 교과용도서 선정(안) 및 제3차 추가경정예산(안) 2건 심의' },
-    { round: 4, kind: '임시회', isoDate: '2026-11-24', date: '2026. 11. 24.(화) 15:00', notice: '2026. 11. 17.', agendas: 3, status: '안건취합·사전준비 진행중', days: 1, active: true, summary: '겨울방학 초등돌봄교실 운영(안), 2027 급식 식재료 구매방법(안), 제4차 추경예산(안)' }
+    { round: 4, kind: '임시회', isoDate: '2026-11-24', date: '2026. 11. 24.(화) 15:00', notice: '2026. 11. 17.', agendas: 0, status: '안건취합·사전준비 진행중', days: 1, active: true, summary: '' }
   ];
 
-  const DEFAULT_INTAKES = [
-    { kind: '심의안건', dept: '늘봄지원실', title: '2026학년도 겨울방학 초등돌봄교실 및 방과후학교 운영 계획(안)', proposer: '늘봄지원실장', status: '채택(제1호)', checked: true },
-    { kind: '심의안건', dept: '급식실', title: '2027학년도 학교급식 식재료 구매 방법 및 업체 선정 기준(안)', proposer: '영양교사', status: '채택(제2호)', checked: true },
-    { kind: '심의안건', dept: '행정실', title: '2026학년도 인천가원초등학교회계 제4차 추가경정예산(안)', proposer: '행정실장', status: '채택(제3호)', checked: true },
-    { kind: '추경요청', dept: '교무기획부', title: '[추경요청 1] 기초학력 맞춤형 학습지원 강사료 및 교재비 증액 요청', proposer: '교무부장', status: '제4차 추경반영', checked: false },
-    { kind: '추경요청', dept: '연구정보부', title: '[추경요청 2] AI 디지털교과서 연계 스마트단말기 충전보관함 수선비', proposer: '연구부장', status: '제4차 추경반영', checked: false },
-    { kind: '추경요청', dept: '체육안전부', title: '[추경요청 3] 겨울철 어린이보호구역 미끄럼방지 포장 및 안전용품 구입', proposer: '안전부장', status: '제4차 추경반영', checked: false },
-    { kind: '추경요청', dept: '늘봄지원실', title: '[추경요청 4] 겨울방학 돌봄교실 급·간식비 및 프로그램 운영비 편성', proposer: '늘봄지원실장', status: '제4차 추경반영', checked: false },
-    { kind: '추경요청', dept: '병설유치원', title: '[추경요청 5] 유치원 방과후과정 겨울방학 도서 및 교구 구입비', proposer: '유치원부장', status: '제4차 추경반영', checked: false },
-    { kind: '추경요청', dept: '행정실', title: '[추경요청 6] 동절기 냉난방 전기요금 및 시설물 동파방지 열선 보수비', proposer: '행정실장', status: '제4차 추경반영', checked: false }
-  ];
+  const DEFAULT_INTAKES = []; // 실제 취합 자료만 입력 (노션 제4회 안건목록 미작성 → 예시 데이터 제거)
 
   const DEFAULT_FORMATION_STAGES = [
     {
@@ -5090,7 +5076,8 @@ window.SOWC_PREP = {
   function renderIntake() {
     const tb = document.getElementById('intakeTbody');
     if (!tb) return;
-    tb.innerHTML = appState.intakes.map((it, idx) => `
+    if (!appState.intakes.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:22px;font-size:15px;opacity:.8">이 회차에 취합된 안건·추경요청이 아직 없습니다. 아래 입력칸에서 실제 제출된 건만 추가하세요.</td></tr>'; }
+    else tb.innerHTML = appState.intakes.map((it, idx) => `
       <tr>
         <td><span class="pipe-badge" style="${it.kind==='심의안건'?'background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)':''}">${it.kind}</span></td>
         <td style="font-weight:600">${it.dept}</td>
@@ -5109,8 +5096,10 @@ window.SOWC_PREP = {
   }
 
   function toggleIntake(idx, val) {
-    if (appState.intakes[idx]) appState.intakes[idx].checked = val;
+    const it0 = appState.intakes[idx];
+    if (it0) { it0.checked = val; it0.status = val ? (it0.kind === '추경요청' ? '추경 반영' : '채택(상정)') : (it0.kind === '추경요청' ? '추경 취합' : '상정 대기'); }
     saveMasterState();
+    renderIntake();
     if (window.SOWC_APP && window.SOWC_APP.syncIntakesEverywhere) {
       window.SOWC_APP.syncIntakesEverywhere('tab1-intake');
     }
@@ -5125,7 +5114,7 @@ window.SOWC_PREP = {
       kind, dept, title,
       proposer: dept.replace(/부$/, '부장'),
       status: kind === '심의안건' ? '상정 대기' : '추경 취합',
-      checked: kind === '심의안건'
+      checked: false
     });
     document.getElementById('inTitle').value = '';
     saveMasterState();
@@ -6174,17 +6163,8 @@ window.SOWC_PREP = {
     optNewProject: false,
     optLateWarn: false,
     optSafetyPlan: false,
-    agendas: [
-      { dept: '늘봄지원실', title: '2026학년도 겨울방학 초등돌봄교실 및 방과후학교 운영 계획(안)' },
-      { dept: '급식실', title: '2027학년도 학교급식 식재료 구매 방법 및 업체 선정 기준(안)' },
-      { dept: '행정실', title: '2026학년도 인천가원초등학교회계 제4차 추가경정예산(안)' }
-    ],
-    budgetItems: [
-      { dept: '교무기획부', title: '기초학력 맞춤형 학습지원 강사료 및 교재비 증액 요청' },
-      { dept: '연구정보부', title: 'AI 디지털교과서 연계 스마트단말기 충전보관함 수선비' },
-      { dept: '체육안전부', title: '겨울철 어린이보호구역 미끄럼방지 포장 및 안전용품 구입' },
-      { dept: '늘봄지원실', title: '겨울방학 돌봄교실 급·간식비 및 프로그램 운영비 편성' }
-    ]
+    agendas: [],
+    budgetItems: []
   };
 
   function setMsgGenViewMode(mode) {
@@ -6915,11 +6895,7 @@ window.SOWC_PREP = {
     contactPhone: '행정실 ☎ (담당: 이호철 행정실장)',
     principalName: '최정민',
     additionalInfo: '주차장 이용 가능하며, 심의자료는 사전 배부 및 당일 회의석상에 준비됩니다.',
-    agendas: [
-      '2026학년도 겨울방학 초등돌봄교실 및 방과후학교 운영 계획(안)',
-      '2027학년도 학교급식 식재료 구매 방법 및 업체 선정 기준(안)',
-      '2026학년도 인천가원초등학교회계 제4차 추가경정예산(안)'
-    ]
+    agendas: []
   };
 
   function selectCommMsgType(msgType) {
@@ -7526,6 +7502,7 @@ window.SOWC_PREP = {
 #roundBar .rb-hint{font-size:15px;opacity:.8;margin-top:8px}
 #roundBar details summary{font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
 #roundBar .rb-past{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;margin-left:6px}
+#intakeTable td,#intakeTable th{vertical-align:middle}#intakeTable td:nth-child(1),#intakeTable td:nth-child(2),#intakeTable td:nth-child(4),#intakeTable td:nth-child(5),#intakeTable th{white-space:nowrap}#intakeTable td:nth-child(3){word-break:keep-all;line-height:1.5}
 #rbNewBox{display:none;margin-top:10px;padding:12px;border:1px dashed var(--accent);border-radius:10px}
 @media (max-width:640px){html,body{overflow-x:hidden;max-width:100vw}.std-tbl,#tab-calendar table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.std-tbl th,.std-tbl td{white-space:nowrap}.grid-cal,.grid-2{grid-template-columns:minmax(0,1fr)!important}.grid-cal>*,.grid-2>*{min-width:0}.cal-header{flex-wrap:wrap}.cal-header .btnrow{flex-wrap:wrap}.cal-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important}.cal-ev{font-size:10px;overflow:hidden;text-overflow:ellipsis}#mainTabNav{overflow-x:auto;max-width:100%}#roundBar #rbSelect{min-width:0;width:100%}#roundBar .rb-row>div{flex:1 1 100%}.chat-fab{right:12px;bottom:12px}.chat-fab span{display:none}.chat-drawer{right:8px;left:8px;width:auto;max-width:none;bottom:72px;height:calc(100vh - 96px)}#chatInput{font-size:16px}}
 </style>
@@ -7538,6 +7515,16 @@ window.SOWC_PREP = {
   let store={activeRound:null,rounds:{}};
   try{const r=JSON.parse(localStorage.getItem(KEY)||'null'); if(r&&r.rounds) store=r;}catch(e){}
   function persist(){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} }
+  const SAMPLE=['겨울방학 초등돌봄교실 및 방과후학교 운영 계획','학교급식 식재료 구매 방법 및 업체 선정 기준','인천가원초등학교회계 제4차 추가경정예산(안)','기초학력 맞춤형 학습지원','스마트단말기 충전보관함','어린이보호구역 미끄럼방지','돌봄교실 급·간식비','유치원 방과후과정 겨울방학 도서','동파방지 열선'];
+  const isSample=x=>{const t=typeof x==='string'?x:(x&&x.title)||'';return SAMPLE.some(k=>t.includes(k));};
+  const clean=a=>Array.isArray(a)?a.filter(x=>!isSample(x)):a;
+  function purgeSamples(){
+    const S=st(); if(S){ S.intakes=clean(S.intakes)||[]; const s4=(S.sessions||[]).find(x=>x.round===4); if(s4&&/겨울방학 초등돌봄교실/.test(s4.summary||'')){ s4.summary=''; s4.agendas=0; } }
+    const P=window.SOWC_PREP&&window.SOWC_PREP.state; if(P){ P.agendas=clean(P.agendas)||[]; if(/겨울방학 초등돌봄교실/.test(P.agendaSummary||'')) P.agendaSummary=''; }
+    const ms=APP().msgState||{}; if(ms.staff){ ms.staff.agendas=clean(ms.staff.agendas)||[]; ms.staff.budgetItems=clean(ms.staff.budgetItems)||[]; } if(ms.comm) ms.comm.agendas=clean(ms.comm.agendas)||[];
+    Object.values(store.rounds||{}).forEach(r=>{ if(r.intakes) r.intakes=clean(r.intakes); if(r.prep){ r.prep.agendas=clean(r.prep.agendas)||[]; if(/겨울방학 초등돌봄교실/.test(r.prep.agendaSummary||'')) r.prep.agendaSummary=''; } if(r.staff){ r.staff.agendas=clean(r.staff.agendas)||[]; r.staff.budgetItems=clean(r.staff.budgetItems)||[]; } if(r.comm) r.comm.agendas=clean(r.comm.agendas)||[]; });
+    try{ APP().saveMasterState(); }catch(e){} persist();
+  }
   const clone=o=>JSON.parse(JSON.stringify(o||{}));
   const sessions=()=>((st()&&st().sessions)||[]).slice().sort((a,b)=>a.round-b.round);
   const sess=r=>(st().sessions||[]).find(s=>String(s.round)===String(r));
@@ -7552,6 +7539,7 @@ window.SOWC_PREP = {
     store.rounds[r]={
       prep: window.SOWC_PREP?clone(window.SOWC_PREP.state):null,
       staff: clone(ms.staff), comm: clone(ms.comm),
+      intakes: clone((st()&&st().intakes)||[]),
       savedAt: new Date().toISOString()
     };
     persist();
@@ -7583,6 +7571,9 @@ window.SOWC_PREP = {
     if($('ddayMeetTime')) $('ddayMeetTime').value=t;
     const A=APP();
     const hadSnap=!!store.rounds[r];
+    if(!opts.init){ st().intakes = (store.rounds[r]&&Array.isArray(store.rounds[r].intakes)) ? clone(store.rounds[r].intakes) : []; }
+    else if(store.rounds[r]&&Array.isArray(store.rounds[r].intakes)) st().intakes=clone(store.rounds[r].intakes);
+    try{ A.renderIntake&&A.renderIntake(); }catch(e){}
     if(A.loadSessionPreset){ const was=A._rbInApply; A._rbInApply=true; const tEl=$('toast'); const keep=tEl&&tEl.className; try{ A.loadSessionPreset(Number(r)); } finally{ A._rbInApply=was; if(opts.silent&&tEl){ tEl.className=keep; } } }
     if(hadSnap){ restoreRound(r); if(ms.staff) ms.staff.meetTime=t; if(ms.comm) ms.comm.meetingTime=t; }
     try{ A.syncScheduleEverywhere&&A.syncScheduleEverywhere('round-select',{round:s.round,kind:s.kind,date:s.isoDate,time:t,silent:true}); }catch(e){}
@@ -7715,6 +7706,7 @@ window.SOWC_PREP = {
   let tmr; function autoSnap(){ clearTimeout(tmr); tmr=setTimeout(()=>{ if(store.activeRound!=null) snapshot(store.activeRound); },600); }
   document.addEventListener('input',e=>{ if(e.target.closest&&e.target.closest('#roundBar')) return; autoSnap(); },true);
   document.addEventListener('change',e=>{ if(e.target.closest&&e.target.closest('#roundBar')) return; autoSnap(); },true);
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#intakeTable,[onclick*=addIntakeItem]')) autoSnap(); },true);
   window.addEventListener('pagehide',()=>{ if(store.activeRound!=null) snapshot(store.activeRound); });
 
   function init(){
@@ -7725,8 +7717,9 @@ window.SOWC_PREP = {
       const orig=A.loadSessionPreset; A._rbWrapped=true;
       A.loadSessionPreset=function(r){ if(!A._rbInApply){ A._rbInApply=true; try{ applyRound(r); } finally{ A._rbInApply=false; } return; } return orig.apply(this,arguments); };
     }
+    purgeSamples();
     const r=activeRound();
-    A._rbInApply=true; try{ applyRound(r,{noSnapshot:true,silent:true}); } finally{ A._rbInApply=false; } setTimeout(()=>{ const tEl=$('toast'); if(tEl) tEl.classList.remove('on','show'); },30);
+    A._rbInApply=true; try{ applyRound(r,{noSnapshot:true,silent:true,init:true}); } finally{ A._rbInApply=false; } setTimeout(()=>{ const tEl=$('toast'); if(tEl) tEl.classList.remove('on','show'); },30);
   }
   window.SOWC_ROUNDS={applyRound,setTime,addRound,snapshot,store:()=>store};
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0)); else setTimeout(init,0);
