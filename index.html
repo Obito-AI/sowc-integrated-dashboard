@@ -1569,7 +1569,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
           </div>
           <div class="btn-row" style="margin:6px 0">
             <button class="btn sm primary" id="btnSummarize" disabled>✨ 심의자료로 심의내용 AI 자동 요약</button>
-            <span class="hint" id="sumProgress">심의자료를 올리고 API 키를 입력하면 활성화됩니다</span>
+            <span class="hint" id="sumProgress">STEP 01에 심의자료를 넣으면 활성화됩니다</span>
           </div>
           <div id="agendaList" style="margin-top:6px"></div>
           <button class="btn sm ghost" id="btnAddAgenda">＋ 안건 추가</button>
@@ -1658,6 +1658,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
             <option value="formal">오타 + 공식 문체</option>
             <option value="spoken">오타 + 구어체 다듬기</option>
           </select>
+          <details style="flex:1 1 100%;order:9"><summary style="cursor:pointer;font-size:13px">고급: 내 키 사용 (비우면 클로우웍스 서버 AI 사용)</summary><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
           <select id="aiProvider">
             <option value="anthropic">Claude (Anthropic)</option>
             <option value="openai">GPT (OpenAI)</option>
@@ -1667,6 +1668,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
           <label style="display:flex; gap:4px; align-items:center; white-space:nowrap"><input type="checkbox" id="apiKeySave"> 키 저장</label>
           <select id="aiModel"></select>
           <input type="text" id="customModel" placeholder="모델명 입력" style="display:none; width:140px; border:1px solid var(--line); border-radius:6px; padding:4px 6px">
+          </div></details>
           <button class="btn sm primary" id="btnFixAll">전체 발언 AI 교정</button>
           <span class="hint" id="fixProgress"></span>
         </div>
@@ -2967,7 +2969,7 @@ $('btnApplyEdits').addEventListener('click', ()=>{
   if(!state.items.some(x=>x.kind==='utt')){ $('btnParse').click(); return; }   // 분석 전이면 최초 분석으로
   const parsed = parseTranscript(raw);
   if(!parsed.length){ toast('화자·발언을 찾지 못했습니다. 형식을 확인해 주세요.'); return; }
-  const newUtts = $('optMerge').checked ? mergeConsecutive(parsed) : parsed;
+  const newUtts = parsed; // 합치기는 표시·출력 단계에서만 적용 (원본 보존)
   const r = mergeTranscript(newUtts);
   state.rawUtts = parsed;
   buildSpeakerMap(true);                                 // 화자 표에 입력한 직위·성명 전체 유지
@@ -2977,7 +2979,7 @@ $('btnApplyEdits').addEventListener('click', ()=>{
 });
 
 function rebuildItemsFromRaw(){
-  const src = $('optMerge').checked ? mergeConsecutive(state.rawUtts) : state.rawUtts;
+  const src = state.rawUtts; // 합치기는 표시·출력 단계에서만 적용 (원본 보존)
   state.items = src.map(u=>({kind:'utt', spk:u.speaker, text:u.text, src:u.text, srcSpk:u.speaker}));
 }
 function buildSpeakerMap(preserveAll){
@@ -3050,7 +3052,9 @@ $('btnAddSpeaker').addEventListener('click', ()=>{
   toast('화자를 추가했습니다. 직위·성명을 입력하고 발언 목록에서 지정하세요.');
 });
 
-$('optMerge').addEventListener('change', ()=>{ rebuildItemsFromRaw(); renderUtts(); renderSpeakers(); refresh(); });
+function spkKey(orig){ const s = state.speakers[orig] || {role:'(직위 없음)', name:orig}; const role = s.role==='(직위 없음)' ? '' : s.role; const nm=(s.name||'').trim(); return (role||nm) ? role+'|'+nm : 'raw|'+orig; }
+function mergedGroups(){ const g=[]; state.items.forEach((it,idx)=>{ if(it.kind!=='utt'){ g.push({div:it, idxs:[idx]}); return; } if(!it.text.trim()) return; const last=g[g.length-1]; if(last && !last.div && last.key===spkKey(it.spk)){ last.idxs.push(idx); last.text+='\n'+it.text; } else g.push({key:spkKey(it.spk), spk:it.spk, idxs:[idx], text:it.text}); }); return g; }
+$('optMerge').addEventListener('change', ()=>{ renderUtts(); refresh(); toast($('optMerge').checked ? '같은 화자(직위·성명 기준) 연속 발언을 합쳐서 보여줍니다. 원본 발언은 그대로 보존됩니다.' : '합치기를 끄고 원래 발언 단위로 되돌렸습니다.'); });
 $('optName').addEventListener('change', ()=>{ renderUtts(); refresh(); });
 $('optMask').addEventListener('change', ()=>{ renderUtts(); refresh(); });
 $('btnProposerBrief').addEventListener('click', ()=>{
@@ -3072,6 +3076,19 @@ const AGENDA_HIT = /제\s*\d+\s*호?\s*안건|안건.*상정|개회|폐회를?\s
 const RESULTS = ['결과 표기 없음','원안 가결','수정 가결','부결','보류','조건부 가결'];
 function renderUtts(){
   const list = $('uttList'); list.innerHTML='';
+  if($('optMerge').checked && state.items.some(x=>x.kind==='utt')){
+    const groups = mergedGroups(); const n = groups.filter(g=>!g.div).length, total = state.items.filter(x=>x.kind==='utt'&&x.text.trim()).length;
+    const note = document.createElement('div'); note.className='hint'; note.style.cssText='margin:0 0 8px;font-size:14px';
+    note.textContent = `합친 상태로 보는 중: 발언 ${total}건 → ${n}문단 (직위·성명 기준). 발언을 고치거나 나누려면 체크를 끄세요. 원본은 보존됩니다.`;
+    list.appendChild(note);
+    groups.forEach(g=>{
+      const row=document.createElement('div');
+      if(g.div){ row.className='divider-row'; row.innerHTML=`<span class="tag">구분</span><b style="padding:4px 8px">${escHtml(g.div.label||'')}</b>`; list.appendChild(row); return; }
+      row.className='utt-row'; row.innerHTML=`<div><b style="font-size:13px">${escHtml(speakerInline(g.spk))}</b>${g.idxs.length>1?`<div class="fixed-chip">${g.idxs.length}건 합침</div>`:''}</div><textarea rows="2" readonly style="background:var(--paper-soft)">${escHtml(g.text)}</textarea><div class="mini"></div>`;
+      list.appendChild(row); const ta=row.querySelector('textarea'); if(typeof autoGrow==='function') autoGrow(ta);
+    });
+    return;
+  }
   state.items.forEach((it, idx)=>{
     if(it.kind==='div'){
       const row = document.createElement('div'); row.className='divider-row';
@@ -3225,6 +3242,12 @@ function buildData(){
     }
   });
   flush();
+  if($('optMerge').checked){
+    for(let i=items.length-1;i>0;i--){
+      const a=items[i-1], b=items[i];
+      if(a.kind==='utt' && b.kind==='utt' && spkKey(state.items[a.si].spk)===spkKey(state.items[b.si].spk)){ a.contentLines=a.contentLines.concat(b.contentLines); items.splice(i,1); }
+    }
+  }
 
   const wr = $('mWriterRole').value.trim(), wn = $('mWriterName').value.trim();
   const presiderRole = ($('mPresiderRole') && $('mPresiderRole').value) || '위원장';
@@ -3378,7 +3401,7 @@ const PROVIDERS = {
 function keyStore(){ return 'sowc_api_key_' + $('aiProvider').value; }
 function refreshProviderUI(){
   const p = PROVIDERS[$('aiProvider').value];
-  $('apiKey').placeholder = p.ph + ' — AI 기능에만 사용, 외부 저장 없음';
+  $('apiKey').placeholder = p.ph + ' (선택) — 비우면 서버 AI 사용';
   $('aiModel').innerHTML = p.models.map(m=>`<option value="${m[0]}">${m[1]}</option>`).join('')
     + '<option value="__custom">모델명 직접 입력</option>';
   $('customModel').style.display = 'none';
@@ -3403,9 +3426,19 @@ refreshProviderUI();
 function currentModel(){
   return $('aiModel').value==='__custom' ? $('customModel').value.trim() : $('aiModel').value;
 }
+async function callServerAI(system, userContent, maxTokens){
+  const ctl = new AbortController(); const tm = setTimeout(()=>ctl.abort(), 60000);
+  try{
+    const res = await fetch('https://clawworks-dashboard.vercel.app/api/sowc/ai', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ system, user: userContent, max_tokens: maxTokens||4000 }), signal: ctl.signal });
+    const j = res.ok ? await res.json() : null;
+    if(j && j.ok && j.text) return String(j.text);
+  }catch(e){} finally{ clearTimeout(tm); }
+  throw new Error('AI 연결 대기 — 서버 AI가 아직 연결되지 않았습니다');
+}
 async function callAIRaw(system, userContent, maxTokens){
   const key = $('apiKey').value.trim();
-  if(!key) throw new Error('API 키를 입력하세요');
+  if(!key) return callServerAI(system, userContent, maxTokens);   // 기본: 클로우웍스 서버 AI
   const provider = $('aiProvider').value;
   const model = currentModel();
   if(!model) throw new Error('모델명을 입력하세요');
@@ -3491,29 +3524,70 @@ function updateSummarizeBtn(){
   const ok = state.simuiText && namedAgendas().length;
   $('btnSummarize').disabled = !ok || summarizing;
   $('sumProgress').textContent = ok ? (state.simuiName ? `"${state.simuiName}" 기반` : '') 
-    : '심의자료를 올리고 2단계에 API 키를 입력하면 활성화됩니다';
+    : 'STEP 01에 심의자료(.hwpx)를 넣으면 활성화됩니다';
+}
+/* ── 규칙 기반 본문 추출 요약 (원문에 있는 문장만 사용) ── */
+function _normT(x){ return String(x||'').replace(/\s+/g,'').replace(/[()（）\[\]「」『』·ㆍ.,]/g,''); }
+function extractiveSummaries(simuiText, targets){
+  const lines = String(simuiText||'').split('\n').map(t=>t.replace(/\s+/g,' ').trim()).filter(Boolean);
+  const keys = targets.map(a=>_normT(a.name.trim()).slice(0,14));
+  const hitIdx = (k, from)=>{ for(let i=from;i<lines.length;i++){ if(k && _normT(lines[i]).includes(k)) return i; } return -1; };
+  // 각 안건의 마지막 등장 위치를 본문 섹션 시작으로 간주 (첫 등장은 보통 안건 목록 표)
+  const starts = keys.map(k=>{ let last=-1, i=hitIdx(k,0); while(i>=0){ last=i; i=hitIdx(k,i+1); } return last; });
+  const HEAD = /^(?:[0-9]+\.|[가-하]\.|[ⅠⅡⅢⅣⅤ]+\.|□|■|▣|○|◦)?\s*(제안\s*이유|제안\s*사유|추진\s*목적|목적|근거|주요\s*내용|추진\s*내용|세부\s*내용|운영\s*계획|소요\s*예산|예산|기대\s*효과|기간|대상)/;
+  const MONEY = /\d[\d,]*\s*(?:천원|만원|원)/;
+  return targets.map((a,k)=>{
+    let st = starts[k]; if(st<0) return '';
+    const nexts = starts.filter((x,j)=>j!==k && x>st); let en = nexts.length? Math.min(...nexts) : Math.min(lines.length, st+80);
+    if(en-st<2) return '';
+    const sec = lines.slice(st+1, en).filter(t=>t.length>=4 && t.length<=300);
+    const groups = []; let cur = null;
+    sec.forEach(t=>{
+      const m = t.match(HEAD);
+      if(m && t.length<=40){ cur = { h: m[1].replace(/\s+/g,' '), items: [] }; groups.push(cur); return; }
+      if(m && t.length>40){ cur = { h: m[1].replace(/\s+/g,' '), items: [] }; groups.push(cur); cur.items.push(t.replace(HEAD,'').replace(/^[\s:：-]+/,'')); return; }
+      if(cur && cur.items.length<4) cur.items.push(t);
+    });
+    const money = sec.filter(t=>MONEY.test(t)).slice(0,3);
+    const out = [];
+    groups.filter(g=>g.items.length).slice(0,4).forEach(g=>{ out.push('▣ '+g.h); g.items.slice(0,3).forEach(t=>out.push(' - '+t.slice(0,140))); });
+    if(money.length && !out.some(l=>MONEY.test(l))){ out.push('▣ 금액'); money.forEach(t=>out.push(' - '+t.slice(0,140))); }
+    if(!out.length){ const body = sec.slice(0,4); if(!body.length) return ''; out.push('▣ 주요 내용'); body.forEach(t=>out.push(' - '+t.slice(0,140))); }
+    return out.join('\n');
+  });
+}
+async function serverSummaries(targets){
+  const ctl = new AbortController(); const tm = setTimeout(()=>ctl.abort(), 45000);
+  try{
+    const res = await fetch('https://clawworks-dashboard.vercel.app/api/sowc/summarize', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ system: SUM_SYSTEM, agendas: targets.map(a=>`${a.no}. ${a.name.trim()}`), text: state.simuiText }), signal: ctl.signal });
+    const j = res.ok ? await res.json() : null;
+    if(j && j.ok && Array.isArray(j.summaries) && j.summaries.length===targets.length) return j.summaries.map(String);
+  }catch(e){} finally{ clearTimeout(tm); }
+  return null;
 }
 $('btnSummarize').addEventListener('click', async ()=>{
   if(summarizing) return;
-  if(!$('apiKey').value.trim()){ toast('2단계 상단의 AI 교정 박스에 API 키를 먼저 입력하세요.'); $('apiKey').focus(); return; }
   const targets = namedAgendas();
   if(!targets.length){ toast('요약할 안건이 없습니다.'); return; }
-  if(!await askAiConsent()) return;
-  const skipped = targets.filter(a=>state.agendas[a.no-1].content.trim()).length;
+  if(!state.simuiText){ toast('STEP 01에 심의자료(.hwpx)를 먼저 넣어 주세요.'); return; }
+  const filledBefore = targets.filter(a=>(state.agendas[a.no-1].content||'').trim());
+  let overwrite = false;
+  if(filledBefore.length){ overwrite = confirm(`이미 요약이 입력된 안건이 ${filledBefore.length}건 있습니다.\n[확인] 덮어쓰기 / [취소] 빈 칸만 채우기`); }
   summarizing = true; updateSummarizeBtn();
-  $('sumProgress').textContent = `AI가 심의자료를 읽고 ${targets.length}건을 요약하는 중… (수십 초 걸릴 수 있습니다)`;
-  try{
-    const payload = JSON.stringify({ 안건목록: targets.map(a=>`${a.no}. ${a.name.trim()}`), 심의자료전문: state.simuiText });
-    const sums = await callAIJSON(SUM_SYSTEM, payload, targets.length, 8000);
-    let filled = 0;
-    targets.forEach((a,k)=>{
-      const cur = state.agendas[a.no-1];
-      if(!cur.content.trim() && sums[k].trim()){ cur.content = sums[k].trim(); filled += 1; }
-    });
-    renderAgendas(); refresh();
-    toast(`심의내용 요약 완료: ${filled}건 채움` + (skipped? ` (이미 입력된 ${skipped}건은 보존)` : '') + '. 회의결과 탭에서 확인·수정하세요.');
-  }catch(err){ console.error(err); toast('요약 실패: ' + err.message); }
+  $('sumProgress').textContent = `심의자료를 읽고 ${targets.length}건을 요약하는 중…`;
+  let sums = await serverSummaries(targets), mode = 'AI 요약';
+  if(!sums){ sums = extractiveSummaries(state.simuiText, targets); mode = 'AI 연결 대기 · 본문 추출 요약'; }
+  let filled = 0, empty = 0;
+  targets.forEach((a,k)=>{
+    const cur = state.agendas[a.no-1]; const v = String(sums[k]||'').trim();
+    if(!v){ empty += 1; return; }
+    if(!cur.content.trim() || overwrite){ cur.content = v; filled += 1; }
+  });
+  renderAgendas(); refresh();
   summarizing = false; updateSummarizeBtn();
+  $('sumProgress').textContent = `${mode} · ${filled}건 채움` + (empty? ` · 본문에서 찾지 못한 ${empty}건은 비워 둠`:'');
+  toast(`${mode}: ${filled}건 채움` + (filledBefore.length && !overwrite ? ` (기존 입력 ${filledBefore.length}건 보존)` : '') + (empty? `, ${empty}건은 본문에서 찾지 못했습니다` : ''));
 });
 
 let aiConsent = false;
@@ -3526,13 +3600,12 @@ function askAiConsent(){
   });
 }
 
-let fixing = false;
+let fixing = false; let fixWaiting = false;
 async function aiFixItems(indices){
   if(fixing){ toast('교정이 이미 진행 중입니다.'); return; }
   const targets = indices.filter(i=>state.items[i] && state.items[i].kind==='utt' && state.items[i].text.trim());
   if(!targets.length){ toast('교정할 발언이 없습니다.'); return; }
-  if(!$('apiKey').value.trim()){ toast('AI 교정을 쓰려면 상단에 API 키를 입력하세요.'); $('apiKey').focus(); return; }
-  if(!await askAiConsent()) return;
+  if($('apiKey').value.trim() && !await askAiConsent()) return;
   fixing = true;
   $('btnFixAll').disabled = true;
   // 글자수 기준으로 묶어서 호출
@@ -3556,14 +3629,15 @@ async function aiFixItems(indices){
           changed += 1;
         }
       });
-    }catch(err){ console.error(err); failed += chunk.length;
-      if(/API 키|한도/.test(err.message)){ toast('AI 교정 중단: '+err.message); break; } }
+    }catch(err){ if(!/AI 연결 대기/.test(err.message)) console.error(err); failed += chunk.length;
+      if(/API 키|한도|AI 연결 대기/.test(err.message)){ toast('AI 교정 중단: '+err.message); if(/AI 연결 대기/.test(err.message)) fixWaiting = true; break; } }
     done += chunk.length;
   }
-  $('fixProgress').textContent = '';
+  $('fixProgress').textContent = fixWaiting ? 'AI 연결 대기 · 원문은 그대로 유지됩니다' : '';
   fixing = false;
   $('btnFixAll').disabled = false;
   renderUtts(); refresh();
+  if(fixWaiting){ fixWaiting=false; toast('AI 연결 대기 — 서버 AI가 연결되면 바로 교정됩니다. 원문은 그대로입니다.'); return; }
   toast(failed ? `교정 완료: ${changed}건 수정, ${failed}건 실패` : (changed ? `교정 완료: ${changed}건 수정됨 (↩로 개별 복원 가능)` : '교정 완료: 고칠 오타를 찾지 못했습니다.'));
 }
 $('btnFixAll').addEventListener('click', ()=>aiFixItems(state.items.map((_,i)=>i)));
