@@ -520,7 +520,9 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 90;
+  z-index: 2000;
+  font-size: 16px !important;
+  min-height: 52px;
   background: var(--accent);
   color: #fff;
   border: 1px solid rgba(255,255,255,.25);
@@ -548,7 +550,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: 0 12px 36px rgba(30,37,48,.22);
-  z-index: 95;
+  z-index: 2001;
   display: none;
   flex-direction: column;
   overflow: hidden;
@@ -1126,7 +1128,6 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
     </div>
     <span class="meta-chip" id="gBarSchool">🏫 인천가원초등학교 (제12기)</span>
     <span class="meta-chip" id="gBarSession">📌 2026학년도 제4회(임시회) · 2026. 11. 24.(화)</span>
-    <button onclick="window.SOWC_APP.toggleChat()" style="background:#2E5A44;border-color:#4B8B6B;color:#fff;font-weight:750" title="학운위 AI 길잡이 · 스타로드 브릿지 열기 (Alt+G)">💬 학운위 AI 길잡이</button>
     <button onclick="window.SOWC_APP.syncAllTabs()" title="사전준비·위원현황·회의록 데이터를 즉시 동기화합니다">🔄 전 모듈 데이터 동기화</button>
     <button onclick="window.SOWC_APP.exportFullBackup()">💾 전체 백업(.json)</button>
     <button onclick="document.getElementById('globalRestoreInput').click()">📂 백업 복원</button>
@@ -5936,7 +5937,23 @@ window.SOWC_PREP = {
     toggleChat(true);
     appendChatMsg('user', text);
 
-    const hit = KB_QA.find(item => item.keys.some(k => text.toLowerCase().includes(k.toLowerCase())));
+    const lowQ = text.toLowerCase().replace(/\s+/g, '');
+    let hit = null, best = 0;
+    KB_QA.forEach(item => {
+      const sc = item.keys.reduce((a, k) => a + (lowQ.includes(String(k).toLowerCase().replace(/\s+/g, '')) ? String(k).length : 0), 0);
+      if (sc > best) { best = sc; hit = item; }
+    });
+    // 회차·일정·시간 질문은 현재 선택된 회차 데이터로 바로 답변
+    if (/언제|일정|날짜|시간|몇\s*시|마감|공지|발송|다음\s*회의|회차|d-?\d+/i.test(text) && !(hit && best >= 4)) {
+      const sess = (APP.appState && APP.appState.sessions || []).find(x => x.active) || {};
+      const iso = sess.isoDate;
+      if (iso) {
+        const sh = n => { const [y, m, d] = iso.split('-').map(Number); const x = new Date(y, m - 1, d + n); return `${x.getMonth() + 1}. ${x.getDate()}.(${'일월화수목금토'[x.getDay()]})`; };
+        const tm = sess.time || ((String(sess.date || '').match(/\d{1,2}:\d{2}/) || [])[0]) || '15:00';
+        appendChatMsg('bot', `<b>[제${sess.round}회 ${sess.kind || ''} 일정 · 지금 선택된 회차 기준]</b><br>• 회의: <b>${sh(0)} ${tm}</b><br>• 안건취합 공지(D-21): <b>${sh(-21)}</b><br>• 안건취합 마감(D-14): <b>${sh(-14)}</b><br>• 안건 발송마감(당일포함 8일 전·D-7): <b>${sh(-7)}</b><br><span style="opacity:.8">다른 회차는 화면 위 「학운위 회차」에서 고르면 바뀝니다.</span>`);
+        return;
+      }
+    }
     if (hit) {
       appendChatMsg('bot', hit.ans);
       return;
@@ -5952,7 +5969,7 @@ window.SOWC_PREP = {
 
     try {
       const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 5000);
+      const timer = setTimeout(() => ctl.abort(), 9000);
       const res = await fetch('https://clawworks-dashboard.vercel.app/api/grokbot/command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -5966,7 +5983,7 @@ window.SOWC_PREP = {
       clearTimeout(timer);
       if (res.ok) {
         const data = await res.json();
-        if (data && data.reply && botEl) {
+        if (data && data.reply && data.reply_source === 'llm' && botEl) {
           const clean = String(data.reply).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
           botEl.innerHTML = `${localReply}<hr style="border:none;border-top:1px dashed var(--line);margin:8px 0"><div style="font-size:12.2px"><b>⚡ 스타로드 보충 답변</b>: ${clean}</div>`;
         }
@@ -7523,6 +7540,7 @@ window.SOWC_PREP = {
 #roundBar details summary{font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
 #roundBar .rb-past{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;margin-left:6px}
 #rbNewBox{display:none;margin-top:10px;padding:12px;border:1px dashed var(--accent);border-radius:10px}
+@media (max-width:640px){html,body{overflow-x:hidden;max-width:100vw}.grid-cal,.grid-2{grid-template-columns:minmax(0,1fr)!important}.grid-cal>*,.grid-2>*{min-width:0}.cal-header{flex-wrap:wrap}.cal-header .btnrow{flex-wrap:wrap}.cal-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important}.cal-ev{font-size:10px;overflow:hidden;text-overflow:ellipsis}#mainTabNav{overflow-x:auto;max-width:100%}#roundBar #rbSelect{min-width:0;width:100%}#roundBar .rb-row>div{flex:1 1 100%}.chat-fab{right:12px;bottom:12px}.chat-fab span{display:none}.chat-drawer{right:8px;left:8px;width:auto;max-width:none;bottom:72px;height:calc(100vh - 96px)}#chatInput{font-size:16px}}
 </style>
 <script>
 (function(){
