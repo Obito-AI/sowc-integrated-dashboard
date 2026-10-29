@@ -2644,6 +2644,7 @@ function buildResultSection(data) {
   let xml = RES_TPL.secHead;
   xml += protoPara(RES_TPL.titleFirst, data.title);
   xml += protoPara(RES_TPL.datePara, data.date);
+  if (data.attendLine) xml += protoPara(RES_TPL.datePara, data.attendLine);
   let rows = RES_TPL.headerRow, r = 1;
   for (const it of data.rows) {
     const h = rowH(Math.max(estLines(it.contentLines, 30), 2) + 1);
@@ -3264,6 +3265,7 @@ function renderReports(){
 $('btnAddAgenda').addEventListener('click', ()=>{ state.agendas.push(newAgenda()); renderAgendas(); });
 $('btnAddReport').addEventListener('click', ()=>{ state.reports.push(''); renderReports(); });
 FIELD_IDS.forEach(id=>$(id).addEventListener('input', refresh));
+$('mAttend').addEventListener('input', ()=>{ state.attendManual = true; });
 
 /* ============ 문서 데이터 ============ */
 function docTitle(){
@@ -3275,8 +3277,9 @@ function docTitle(){
   const k = $('mKind').value;
   return `${y?y+' ':''}${r?`제${r}회 `:''}${sc}운영위원회${k?`(${k})`:''}`;
 }
+function parseAttend(v){ return String(v||'').replace(/\(?\s*총\s*\d+\s*명\s*\)?/g,' ').split(/[,，、;\n]+/).map(s=>s.trim()).filter(Boolean); }
 function buildData(){
-  const names = $('mAttend').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
+  const names = parseAttend($('mAttend').value);
   const agendaLines = state.agendas.filter(a=>(a.name||'').trim()).map((a,i)=>`${i+1}. ${a.name.trim()}${a.result?` — 심의결과: ${String(a.result).replace(/\s+/g,'')}`:''}`);
   state.reports.map(r=>r.trim()).filter(Boolean).forEach((r,i)=>agendaLines.push(`보고${i+1}. ${r}`));
 
@@ -3327,7 +3330,8 @@ function resultTitle(){
 function dateOnly(s){ const m=String(s).match(/^(.*?일)/); return m?m[1].trim():s; }
 function namedAgendas(){ return state.agendas.map((a,i)=>({...a, no:i+1})).filter(a=>a.name.trim()); }
 function buildResultData(){
-  return { title: resultTitle(), date: dateOnly($('mDate').value.trim()||' '),
+  const _att = parseAttend($('mAttend').value);
+  return { title: resultTitle(), date: dateOnly($('mDate').value.trim()||' '), attendLine: _att.length ? `참석위원: ${_att.join(', ')} (총${_att.length}명)` : '',
     rows: namedAgendas().map(a=>({ no:a.no, name:a.name.trim(),
       contentLines:(a.content||'').split(/\n+/).map(s=>s.trim()).filter(Boolean),
       proposer:a.proposer.trim(), result:a.result })) };
@@ -3350,6 +3354,7 @@ function renderResultPreview(){
   const d = buildResultData();
   const rows = [`<tr><td colspan="5" class="d-title" style="text-align:center; font-size:1rem">${escHtml(d.title)}</td></tr>`,
     `<tr><td colspan="5" style="text-align:center; border-top:none">${escHtml(d.date)}</td></tr>`,
+    ...(d.attendLine?[`<tr><td colspan="5" style="text-align:center; border-top:none; white-space:normal; word-break:keep-all">${escHtml(d.attendLine)}</td></tr>`]:[]),
     `<tr><td class="d-colhdr" style="width:36px">연번</td><td class="d-colhdr" style="width:120px">안 건 명</td><td class="d-colhdr">심 의 내 용</td><td class="d-colhdr" style="width:56px">발의자</td><td class="d-colhdr" style="width:44px">심의<br>결과</td></tr>`];
   for(const r of d.rows){
     rows.push(`<tr><td style="text-align:center">${r.no}</td><td>${escHtml(r.name)}</td><td class="d-txt" contenteditable="plaintext-only" data-ai="${r.no-1}">${r.contentLines.map(escHtml).join('<br>')||'&nbsp;'}</td><td style="text-align:center">${escHtml(r.proposer)||'&nbsp;'}</td><td style="text-align:center">${escHtml(r.result.replace(/\s+/g,''))}</td></tr>`);
@@ -3720,6 +3725,7 @@ $('paper').addEventListener('input', e=>{
   } else if(el.dataset.field){
     const f = $(el.dataset.field);
     if(f) f.value = text.trim();
+    if(el.dataset.field==='mAttend') state.attendManual = true;
   }
   scheduleSave();
 });
@@ -3853,7 +3859,7 @@ function collectDraft(){
   return { ts:Date.now(), src:$('srcText').value,
     rawUtts:state.rawUtts, items:state.items, speakers:state.speakers,
     agendas:state.agendas, reports:state.reports,
-    fields:Object.fromEntries(FIELD_IDS.map(id=>[id,$(id).value])),
+    fields:Object.fromEntries(FIELD_IDS.map(id=>[id,$(id).value])), attendManual: !!state.attendManual,
     simuiText: state.simuiText, simuiName: state.simuiName,
     opts:{merge:$('optMerge').checked, name:$('optName').checked, mask:$('optMask').checked, fixMode:$('fixMode').value, autoBackup:$('optAutoBackup').checked} };
 }
@@ -3880,6 +3886,7 @@ function applyDraft(d){
   state.simuiName = d.simuiName || '';
   updateSummarizeBtn();
   for(const [id,v] of Object.entries(d.fields||{})) if($(id)) $(id).value = v;
+  state.attendManual = !!d.attendManual;
   if(d.opts){ $('optMerge').checked = !!d.opts.merge; $('optName').checked = d.opts.name !== false;
     $('optMask').checked = !!d.opts.mask; if(d.opts.fixMode) $('fixMode').value = d.opts.fixMode;
     if(d.opts.autoBackup !== undefined) $('optAutoBackup').checked = !!d.opts.autoBackup; }
@@ -4011,8 +4018,9 @@ window.SOWC_MINUTES = {
     if (globalData.kind) $('mKind').value = globalData.kind;
     if (globalData.dt) $('mDate').value = globalData.dt;
     if (globalData.place) $('mPlace').value = globalData.place;
-    if (globalData.attendees && globalData.attendees.length) {
+    if (globalData.attendees && globalData.attendees.length && (!state.attendManual || globalData.forceAttend)) {
       $('mAttend').value = globalData.attendees.join(', ');
+      if (globalData.forceAttend) state.attendManual = false;
     }
     if (globalData.agendas && globalData.agendas.length) {
       state.agendas = globalData.agendas.map((a, idx) => {
@@ -5689,7 +5697,7 @@ window.SOWC_PREP = {
     const names = getAttendingMemberNames();
     const attInput = document.getElementById('mAttend');
     if (attInput) attInput.value = names.join(', ');
-    if (window.SOWC_MINUTES) window.SOWC_MINUTES.refresh();
+    if (window.SOWC_MINUTES) { window.SOWC_MINUTES.state.attendManual = false; window.SOWC_MINUTES.refresh(); }
     APP.toast(`출석 체크된 위원 ${names.length}명(${names.slice(0,3).join(', ')} 등)을 [4. 회의록]에 반영했습니다!`);
   }
 
@@ -7696,12 +7704,14 @@ window.SOWC_PREP = {
     persist();
   }
   // 회의록 STEP 05: 화자 매핑·발언 데이터 회차별 사본
-  function minutesSnap(){ const M=window.SOWC_MINUTES&&window.SOWC_MINUTES.state; if(!M) return null; const src=$('srcText'); return clone({src:src?src.value:'', rawUtts:M.rawUtts||[], items:M.items||[], speakers:M.speakers||{}}); }
+  function minutesSnap(){ const M=window.SOWC_MINUTES&&window.SOWC_MINUTES.state; if(!M) return null; const src=$('srcText'); return clone({src:src?src.value:'', rawUtts:M.rawUtts||[], items:M.items||[], speakers:M.speakers||{}, attend:$('mAttend')?$('mAttend').value:'', attendManual:!!M.attendManual}); }
   function minutesApply(r){
     const MM=window.SOWC_MINUTES; if(!MM||!MM.state) return;
     const snap=store.rounds[r]&&store.rounds[r].minutes; const d=snap?clone(snap):{src:'',rawUtts:[],items:[],speakers:{}};
     MM.state.rawUtts=d.rawUtts||[]; MM.state.items=d.items||[]; MM.state.speakers=d.speakers||{};
     if($('srcText')) $('srcText').value=d.src||'';
+    MM.state.attendManual=!!(snap&&snap.attendManual);
+    if($('mAttend')){ if(MM.state.attendManual) $('mAttend').value=snap.attend||''; else { const nm=(APP().getAttendingMemberNames&&APP().getAttendingMemberNames())||[]; if(nm.length) $('mAttend').value=nm.join(', '); } }
     const has=(MM.state.items||[]).length>0||Object.keys(MM.state.speakers).length>0;
     if($('card2')) $('card2').hidden=!has;
     try{ MM.renderSpeakers(); MM.renderUtts(); MM.refresh(); }catch(e){}
