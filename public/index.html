@@ -3006,18 +3006,62 @@ function renderSpeakers(){
     const s = state.speakers[orig];
     const n = counts[orig] || 0;
     const tr = document.createElement('tr');
-    if(!n) tr.style.opacity = '.55';
-    tr.innerHTML = `<td class="spk-orig">${escHtml(orig)}</td>
-      <td><select>${ROLES.map(r=>`<option ${r===s.role?'selected':''}>${r}</option>`).join('')}</select></td>
-      <td><input value="${escHtml(s.name)}" placeholder="성명"></td>
-      <td class="spk-cnt">${n? `<b>${n}건</b>` : `0건 <button class="icon-btn spk-del" title="이 화자 삭제" style="width:22px;height:22px;font-size:.72rem">✕</button>`}</td>`;
+    if(!n) tr.style.opacity = '.7';
+    tr.innerHTML = `<td class="spk-orig"><span class="spk-nm" title="눌러서 이름 고치기" style="cursor:text;font-size:15px;font-weight:700">${escHtml(orig)}</span> <button type="button" class="spk-edit" title="이름 고치기" style="font-size:15px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper-soft,#fff);cursor:pointer">✏️</button></td>
+      <td><select style="font-size:14px">${ROLES.map(r=>`<option ${r===s.role?'selected':''}>${r}</option>`).join('')}</select></td>
+      <td><input value="${escHtml(s.name)}" placeholder="성명" style="font-size:14px"></td>
+      <td class="spk-cnt" style="white-space:nowrap">${n? `<b>${n}건</b>` : `0건`} <button type="button" class="spk-del" title="이 화자 삭제" style="font-size:15px;font-weight:700;padding:4px 10px;margin-left:4px;border:1px solid #d33;color:#d33;border-radius:8px;background:#fff;cursor:pointer">×</button></td>`;
     tr.querySelector('select').addEventListener('change', e=>{ s.role=e.target.value; renderUtts(); refresh(); });
     tr.querySelector('input').addEventListener('input', e=>{ s.name=e.target.value; renderUtts(); refresh(); });
-    const del = tr.querySelector('.spk-del');
-    if(del) del.addEventListener('click', ()=>{ delete state.speakers[orig]; renderSpeakers(); renderUtts(); refresh(); });
+    const startEdit=()=>{ const td=tr.querySelector('.spk-orig'); td.innerHTML=`<input class="spk-rename" value="${escHtml(orig)}" style="font-size:15px;padding:6px 8px;width:100%;min-width:90px;border:2px solid var(--accent);border-radius:8px">`;
+      const inp=td.querySelector('input'); inp.focus(); inp.select(); let done=false;
+      const fin=ok=>{ if(done) return; done=true; const v=inp.value.trim(); if(ok && v && v!==orig) spkRename(orig,v); else renderSpeakers(); };
+      inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();fin(true);} if(e.key==='Escape'){fin(false);} });
+      inp.addEventListener('blur',()=>fin(true)); };
+    tr.querySelector('.spk-edit').addEventListener('click', startEdit);
+    tr.querySelector('.spk-nm').addEventListener('click', startEdit);
+    tr.querySelector('.spk-del').addEventListener('click', ()=>spkDelete(orig, n));
     tb.appendChild(tr);
   }
-  const hint = Object.keys(state.speakers).length && Object.values(counts).length===0;
+}
+/* ── 화자 이름 고치기·삭제·되돌리기 ── */
+function spkSnap(){ return JSON.stringify({speakers:state.speakers, items:state.items, rawUtts:state.rawUtts}); }
+function spkAfter(){ renderSpeakers(); renderUtts(); refresh(); }
+function spkUndoToast(msg, snap){
+  let t=document.getElementById('spkUndo'); if(!t){ t=document.createElement('div'); t.id='spkUndo'; t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;background:#222;color:#fff;padding:12px 16px;border-radius:12px;font-size:16px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:92vw'; document.body.appendChild(t); }
+  t.innerHTML=`<span>${escHtml(msg)}</span><button type="button" style="font-size:16px;font-weight:700;padding:6px 14px;border-radius:8px;border:none;background:#ffd54a;color:#222;cursor:pointer">↩ 되돌리기</button>`;
+  t.style.display='flex'; clearTimeout(t._h); t._h=setTimeout(()=>{t.style.display='none';},7000);
+  t.querySelector('button').onclick=()=>{ const o=JSON.parse(snap); state.speakers=o.speakers; state.items=o.items; state.rawUtts=o.rawUtts; t.style.display='none'; spkAfter(); toast('되돌렸습니다.'); };
+}
+function spkMove(from, to){ state.items.forEach(it=>{ if(it.kind==='utt' && it.spk===from) it.spk=to; }); (state.rawUtts||[]).forEach(u=>{ if(u.speaker===from) u.speaker=to; }); }
+function spkRename(orig, v){
+  const snap=spkSnap();
+  if(state.speakers[v]){
+    if(!confirm(`'${v}' 화자가 이미 있습니다. 두 화자를 합칠까요?\n'${orig}'의 발언이 모두 '${v}'(으)로 옮겨집니다.`)){ renderSpeakers(); return; }
+    spkMove(orig, v); delete state.speakers[orig]; spkAfter(); spkUndoToast(`'${orig}' → '${v}' 합침`, snap); return;
+  }
+  const ent={}; for(const [k,val] of Object.entries(state.speakers)){ if(k===orig){ const e2=Object.assign({},val); if(!e2.name || e2.name===orig) e2.name = e2.role==='(직위 없음)'||!e2.role ? v : e2.name; ent[v]=e2; } else ent[k]=val; }
+  state.speakers=ent; spkMove(orig, v); spkAfter(); spkUndoToast(`화자 이름 '${orig}' → '${v}'`, snap);
+}
+function spkDelete(orig, n){
+  const snap=spkSnap();
+  if(!n){ delete state.speakers[orig]; spkAfter(); spkUndoToast(`화자 '${orig}' 삭제`, snap); return; }
+  const others=Object.keys(state.speakers).filter(k=>k!==orig);
+  let m=document.getElementById('spkDelModal'); if(m) m.remove();
+  m=document.createElement('div'); m.id='spkDelModal'; m.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px';
+  m.innerHTML=`<div style="background:var(--paper,#fff);color:var(--ink,#222);border-radius:14px;padding:20px;max-width:440px;width:100%;font-size:16px;box-shadow:0 10px 30px rgba(0,0,0,.3)">
+    <div style="font-size:18px;font-weight:800;margin-bottom:8px">화자 '${escHtml(orig)}' 삭제</div>
+    <div style="margin-bottom:14px">발언 <b>${n}건</b>을 어떻게 할까요?</div>
+    ${others.length?`<div style="border:1px solid var(--line,#ccc);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-weight:700;margin-bottom:6px">① 다른 화자에게 넘기기 (권장)</div>
+      <select id="spkDelTo" style="width:100%;font-size:16px;padding:8px;margin-bottom:8px">${others.map(k=>`<option value="${escHtml(k)}">${escHtml(k)}</option>`).join('')}</select>
+      <button type="button" id="spkDelMove" style="width:100%;font-size:16px;font-weight:700;padding:10px;border-radius:10px;border:none;background:var(--accent,#2b6);color:#fff;cursor:pointer">발언 넘기고 화자 삭제</button></div>`:''}
+    <button type="button" id="spkDelAll" style="width:100%;font-size:16px;font-weight:700;padding:10px;border-radius:10px;border:none;background:#d32f2f;color:#fff;cursor:pointer;margin-bottom:8px">② 발언 ${n}건까지 함께 삭제</button>
+    <button type="button" id="spkDelCancel" style="width:100%;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line,#ccc);background:transparent;color:inherit;cursor:pointer">취소</button></div>`;
+  document.body.appendChild(m);
+  const close=()=>m.remove();
+  m.querySelector('#spkDelCancel').onclick=close; m.addEventListener('click',e=>{ if(e.target===m) close(); });
+  const mv=m.querySelector('#spkDelMove'); if(mv) mv.onclick=()=>{ const to=m.querySelector('#spkDelTo').value; spkMove(orig,to); delete state.speakers[orig]; close(); spkAfter(); spkUndoToast(`'${orig}' 발언 ${n}건 → '${to}'(으)로 넘기고 삭제`, snap); };
+  m.querySelector('#spkDelAll').onclick=()=>{ state.items=state.items.filter(it=>!(it.kind==='utt'&&it.spk===orig)); state.rawUtts=(state.rawUtts||[]).filter(u=>u.speaker!==orig); delete state.speakers[orig]; close(); spkAfter(); spkUndoToast(`'${orig}' 화자와 발언 ${n}건 삭제`, snap); };
 }
 /* 발언자 칸 표기: [직위, (성명)] */
 function maskName(n){
@@ -3814,6 +3858,7 @@ function scheduleSave(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>{
     const d = collectDraft();
+    try{ const rk='sowc_minutes_by_round_v1'; const all=JSON.parse(localStorage.getItem(rk)||'{}'); const r=(d.fields&&d.fields.mRound)||''; if(r && draftHasContent(d)){ all[r]={ts:d.ts,speakers:d.speakers,items:d.items,rawUtts:d.rawUtts}; localStorage.setItem(rk, JSON.stringify(all)); } }catch(e){}
     try{
       localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
       $('saveInd').textContent = '임시저장됨 · ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
