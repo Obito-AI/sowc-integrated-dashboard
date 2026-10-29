@@ -1110,7 +1110,7 @@ textarea.src { width: 100%; min-height: 150px; border: 1px solid var(--line); bo
 .cm-char-badge.ok { background: var(--accent-soft); color: var(--ok); }
 .cm-char-badge.lms { background: var(--warn-soft); color: var(--warn); }
 .cm-char-badge.warn { background: var(--seal-soft); color: var(--danger); }
-#agendaList .ag-copy:disabled{opacity:.45;cursor:not-allowed}@media (max-width:640px){#agendaList .agenda-item{flex-wrap:wrap}#agendaList .ag-name{flex:1 1 100%}}
+#agendaList .ag-copy:disabled{opacity:.45;cursor:not-allowed}#agendaList .ag-name{flex:1 1 auto;min-width:0}@media (max-width:640px){#agendaList .agenda-item{flex-wrap:wrap}#agendaList .ag-name{flex:1 1 calc(100% - 70px)}}
 </style>
 </head>
 <body>
@@ -3235,7 +3235,7 @@ function renderAgendas(){
     row.innerHTML = `<div class="agenda-item">
       <span class="no">${i+1}.</span>
       <input class="ag-name" value="${escHtml(a.name)}" placeholder="2026학년도 ○○○ 계획(안)">
-      <button type="button" class="ag-copy" title="안건 제목 복사" style="flex:0 0 auto;font-size:15px;font-weight:700;padding:.5rem .9rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap" ${a.name.trim()?'':'disabled'}>📋 제목 복사</button>
+      <button type="button" class="ag-copy" title="제목 복사" aria-label="제목 복사" style="flex:0 0 auto;align-self:stretch;font-size:13px;font-weight:600;padding:0 .5rem;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--ink-soft,#555);cursor:pointer;white-space:nowrap" ${a.name.trim()?'':'disabled'}>📋 복사</button>
       <input class="ag-prop" value="${escHtml(a.proposer)}" placeholder="발의자" style="flex:0 0 88px">
       <select class="ag-res" style="flex:0 0 96px; border:1px solid var(--line); border-radius:7px; padding:.35rem .25rem; font-size:.83rem">${AG_RESULTS.map(o=>`<option ${o===a.result?'selected':''}>${o}</option>`).join('')}</select>
       <button class="icon-btn">✕</button></div>
@@ -3243,7 +3243,7 @@ function renderAgendas(){
     row.querySelector('.ag-name').addEventListener('input', e=>{ a.name=e.target.value; const cb=row.querySelector('.ag-copy'); cb.disabled=!a.name.trim(); updateSummarizeBtn(); refresh(); });
     row.querySelector('.ag-copy').addEventListener('click', async e=>{ const btn=e.currentTarget; const t=(a.name||'').trim(); if(!t) return; let ok=false;
       try{ await navigator.clipboard.writeText(t); ok=true; }catch(err){ try{ const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); ok=document.execCommand('copy'); ta.remove(); }catch(e2){} }
-      btn.textContent= ok?'✅ 복사됨':'복사 실패'; clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.textContent='📋 제목 복사'; },1500); });
+      btn.textContent= ok?'✅ 복사됨':'복사 실패'; clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.textContent='📋 복사'; },1500); });
     row.querySelector('.ag-prop').addEventListener('input', e=>{ a.proposer=e.target.value; refresh(); });
     row.querySelector('.ag-res').addEventListener('change', e=>{ a.result=e.target.value; refresh(); });
     row.querySelector('.ag-content').addEventListener('input', e=>{ a.content=e.target.value; refresh(); });
